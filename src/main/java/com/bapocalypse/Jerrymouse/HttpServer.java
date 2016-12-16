@@ -1,5 +1,8 @@
 package com.bapocalypse.Jerrymouse;
 
+import com.bapocalypse.Jerrymouse.Processor.ServletProcessor;
+import com.bapocalypse.Jerrymouse.Processor.StaticResourceProcessor;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,9 +17,6 @@ import java.net.Socket;
  * @Description: Web服务器
  */
 public class HttpServer {
-    //WEB_ROOT我们HTML和其他文件所在的地方，System.getProperty("user.dir")是指当前工作路径
-    public static final String WEB_ROOT = System.getProperty("user.dir")
-            + File.separator + "webroot";
     //关闭服务器命令
     private static final String SHUTDOWN_COMMAND = "/SHUTDOWN";
     //收到的关闭命令
@@ -27,7 +27,7 @@ public class HttpServer {
         server.await();
     }
 
-    public void await(){
+    public void await() {
         ServerSocket serverSocket = null;
         int port = 6040;
         try {
@@ -37,7 +37,7 @@ public class HttpServer {
             System.exit(1);
         }
 
-        while (!shutdown){
+        while (!shutdown) {
             Socket socket = null;
             InputStream inputStream = null;
             OutputStream outputStream = null;
@@ -51,6 +51,13 @@ public class HttpServer {
                 //创建Response对象
                 Response response = new Response(outputStream);
                 response.setRequest(request);
+                if (request.getUri().startsWith("/servlet/")) {
+                    ServletProcessor processor = new ServletProcessor();
+                    processor.process(request, response);
+                } else {
+                    StaticResourceProcessor processor = new StaticResourceProcessor();
+                    processor.process(request, response);
+                }
                 response.sendStaticResource();
                 //关闭套接字
                 socket.close();
