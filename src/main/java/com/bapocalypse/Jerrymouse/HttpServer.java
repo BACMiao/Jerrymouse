@@ -3,7 +3,6 @@ package com.bapocalypse.Jerrymouse;
 import com.bapocalypse.Jerrymouse.Processor.ServletProcessor;
 import com.bapocalypse.Jerrymouse.Processor.StaticResourceProcessor;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,7 +57,6 @@ public class HttpServer {
                     StaticResourceProcessor processor = new StaticResourceProcessor();
                     processor.process(request, response);
                 }
-                response.sendStaticResource();
                 //关闭套接字
                 socket.close();
                 //测试HTTP请求的URI是否是关闭命令，若是，设置shutdown为true，程序退出循环
