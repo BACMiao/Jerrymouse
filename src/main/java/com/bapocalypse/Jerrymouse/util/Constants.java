@@ -1,4 +1,4 @@
-package com.bapocalypse.Jerrymouse;
+package com.bapocalypse.Jerrymouse.util;
 
 import java.io.File;
 

@@ -1,7 +1,9 @@
-package com.bapocalypse.Jerrymouse;
+package com.bapocalypse.Jerrymouse.startup;
 
-import com.bapocalypse.Jerrymouse.Processor.ServletProcessor;
-import com.bapocalypse.Jerrymouse.Processor.StaticResourceProcessor;
+import com.bapocalypse.Jerrymouse.processor.ServletProcessor;
+import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;
+import com.bapocalypse.Jerrymouse.request.Request;
+import com.bapocalypse.Jerrymouse.response.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +28,7 @@ public class HttpServer {
         server.await();
     }
 
-    public void await() {
+    private void await() {
         ServerSocket serverSocket = null;
         int port = 6040;
         try {
@@ -63,7 +65,6 @@ public class HttpServer {
                 shutdown = request.getUri().equals(SHUTDOWN_COMMAND);
             } catch (IOException e) {
                 e.printStackTrace();
-                continue;
             }
         }
     }

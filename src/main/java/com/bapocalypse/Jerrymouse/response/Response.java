@@ -1,4 +1,7 @@
-package com.bapocalypse.Jerrymouse;
+package com.bapocalypse.Jerrymouse.response;
+
+import com.bapocalypse.Jerrymouse.util.Constants;
+import com.bapocalypse.Jerrymouse.request.Request;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
@@ -6,7 +9,7 @@ import java.io.*;
 import java.util.Locale;
 
 /**
- * @package: com.bapocalypse.Jerrymouse
+ * @package: com.bapocalypse.Jerrymouse.response
  * @Author: 陈淼
  * @Date: 2016/12/16
  * @Description: HTTP响应
@@ -15,7 +18,7 @@ public class Response implements ServletResponse {
     private static final int BUFFER_SIZE = 1024;
     private Request request;
     private OutputStream outputStream;
-    PrintWriter writer;
+    private PrintWriter writer;
 
     public Response(OutputStream outputStream) {
         this.outputStream = outputStream;

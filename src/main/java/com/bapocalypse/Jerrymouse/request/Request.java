@@ -1,4 +1,4 @@
-package com.bapocalypse.Jerrymouse;
+package com.bapocalypse.Jerrymouse.request;
 
 import javax.servlet.*;
 import java.io.BufferedReader;
@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * @package: com.bapocalypse.Jerrymouse
+ * @package: com.bapocalypse.Jerrymouse.request
  * @Author: 陈淼
  * @Date: 2016/12/16
  * @Description: 表示一个HTTP请求

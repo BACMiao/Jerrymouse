@@ -1,12 +1,12 @@
-package com.bapocalypse.Jerrymouse.Processor;
+package com.bapocalypse.Jerrymouse.processor;
 
-import com.bapocalypse.Jerrymouse.Request;
-import com.bapocalypse.Jerrymouse.Response;
+import com.bapocalypse.Jerrymouse.request.Request;
+import com.bapocalypse.Jerrymouse.response.Response;
 
 import java.io.IOException;
 
 /**
- * @package: com.bapocalypse.Jerrymouse.Processor
+ * @package: com.bapocalypse.Jerrymouse.processor
  * @Author: 陈淼
  * @Date: 2016/12/16
  * @Description: 用于处理对于对静态资源的请求

@@ -1,8 +1,10 @@
-package com.bapocalypse.Jerrymouse.Processor;
+package com.bapocalypse.Jerrymouse.processor;
 
-import com.bapocalypse.Jerrymouse.Constants;
-import com.bapocalypse.Jerrymouse.Request;
-import com.bapocalypse.Jerrymouse.Response;
+import com.bapocalypse.Jerrymouse.util.Constants;
+import com.bapocalypse.Jerrymouse.request.Request;
+import com.bapocalypse.Jerrymouse.request.RequestFacade;
+import com.bapocalypse.Jerrymouse.response.Response;
+import com.bapocalypse.Jerrymouse.response.ResponseFacade;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -13,7 +15,7 @@ import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
 
 /**
- * @package: com.bapocalypse.Jerrymouse.Processor
+ * @package: com.bapocalypse.Jerrymouse.processor
  * @Author: 陈淼
  * @Date: 2016/12/16
  * @Description: 用于处理对servlet资源的HTTP请求
@@ -60,11 +62,13 @@ public class ServletProcessor {
         }
 
         Servlet servlet = null;
+        RequestFacade requestFacade = new RequestFacade(request);
+        ResponseFacade responseFacade = new ResponseFacade(response);
         try {
             if (myClass != null) {
                 //创建servlet类的一个新实例
                 servlet = (Servlet) myClass.newInstance();
-                servlet.service(request, response);
+                servlet.service(requestFacade, responseFacade);
             }
         } catch (InstantiationException e) {
             e.printStackTrace();
