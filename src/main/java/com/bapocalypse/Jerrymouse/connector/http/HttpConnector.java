@@ -41,6 +41,7 @@ public class HttpConnector implements Runnable {
                 e.printStackTrace();
                 continue;
             }
+            //为每一个请求创建一个HttpProcessor对象
             HttpProcessor processor = new HttpProcessor();
             processor.process(socket);
         }

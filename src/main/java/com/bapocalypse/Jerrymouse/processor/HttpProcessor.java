@@ -24,6 +24,12 @@ public class HttpProcessor {
     private Response response;
 
     /**
+     * 对每一个传入的HTTP请求，进行四步操作：
+     * 1、创建一个HttpRequest对象
+     * 2、创建一个HttpResponse对象
+     * 3、解析HTTP请求的第一行内容和请求头信息，填充HttpRequest对象
+     * 4、将HttpRequest对象和HttpResponse对象传递给servletResponse或者
+     * StaticResourceProcessor对象的process()方法。
      * @param socket 接收到的套接字对象
      */
     public void process(Socket socket) {
@@ -60,6 +66,8 @@ public class HttpProcessor {
     private void parseRequest(SocketInputStream inputStream, OutputStream outputStream)
             throws ServletException {
         inputStream.readRequestLine(requestLine);
+        //从请求行中获取请求方法、URI和请求协议的版本信息
+        //第二个参数offset为子数组的第一个字符的索引，第三个参数为指定数组的长度
         String method = new String(requestLine.method, 0, requestLine.methodEnd);
         String uri = null;
         String protocol = new String(requestLine.protocol, 0, requestLine.protocolEnd);
@@ -69,7 +77,7 @@ public class HttpProcessor {
             throw new ServletException("Missing HTTP request uri");
         }
 
-        int question = requestLine.index("?");
+        int question = requestLine.indexOf("?");
         if (question >= 0) {
             //todo
             uri = new String(requestLine.uri, 0, question);
