@@ -14,13 +14,26 @@ import java.util.*;
  * @package: com.bapocalypse.Jerrymouse.request
  * @Author: 陈淼
  * @Date: 2016/12/21
- * @Description:
+ * @Description: HTTP请求的类
  */
 public class HttpRequest implements HttpServletRequest {
-    protected HashMap headers = new HashMap();
-    protected ArrayList cookies = new ArrayList();
-    SocketInputStream inputStream;
-//    protected todo
+    protected HashMap headers = new HashMap();     //HTTP请求的请求头
+    protected ArrayList cookies = new ArrayList();  //HTTP的Cookie信息
+    //protected   HTTP的请求参数信息  todo
+    private SocketInputStream inputStream;
+
+    public HttpRequest(SocketInputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public void addHeader() {
+
+    }
+
+    public void addCookie() {
+
+    }
+
     @Override
     public String getAuthType() {
         return null;

@@ -20,13 +20,21 @@ public class SocketInputStream extends InputStream {
         buffer = new byte[bufferSize];
     }
 
-    //返回HTTP的第一行的内容，即包含URI、请求方法和HTTP版本信息
-    public void readRequestLine(HttpRequestLine httpRequestLine) {
-
+    /**
+     * 返回HTTP的第一行的内容，即包含URI、请求方法和HTTP版本信息
+     * @param httpRequestLine
+     * @return
+     */
+    public HttpRequestLine readRequestLine(HttpRequestLine httpRequestLine) {
+        return null;
     }
 
-    public void readHeader(){
-
+    /**
+     * 读取所有请求头信息
+     * @return
+     */
+    public HttpHeader readHeader() {
+        return null;
     }
 
 
