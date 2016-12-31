@@ -64,7 +64,7 @@ public class HttpProcessor {
      * @throws ServletException
      */
     private void parseRequest(SocketInputStream inputStream, OutputStream outputStream)
-            throws ServletException {
+            throws ServletException, IOException {
         inputStream.readRequestLine(requestLine);
         //从请求行中获取请求方法、URI和请求协议的版本信息
         //第二个参数offset为子数组的第一个字符的索引，第三个参数为指定数组的长度
