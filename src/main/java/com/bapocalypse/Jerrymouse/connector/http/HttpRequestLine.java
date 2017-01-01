@@ -10,9 +10,9 @@ public final class HttpRequestLine {
     private static final int INITIAL_METHOD_SIZE = 8;   //初始方法的大小
     private static final int INITIAL_URI_SIZE = 64;     //初始uri的大小
     private static final int INITIAL_PROTOCOL_SIZE = 8; //初始协议的大小
-    public static final int MAX_METHOD_SIZE = 1024;     //最大方法的大小
-    public static final int MAX_URI_SIZE = 32768;       //最大uri的大小
-    public static final int MAX_PROTOCOL_SIZE = 1024;   //最大协议的大小
+    static final int MAX_METHOD_SIZE = 1024;     //最大方法的大小
+    static final int MAX_URI_SIZE = 32768;       //最大uri的大小
+    static final int MAX_PROTOCOL_SIZE = 1024;   //最大协议的大小
 
     public char[] method;
     public int methodEnd;     //方法数组的最后一个字符的索引值
@@ -42,7 +42,7 @@ public final class HttpRequestLine {
     /**
      * 释放所有对象的引用，并初始化实例变量，为重复使用做准备
      */
-    public void recycle() {
+    void recycle() {
         methodEnd = 0;
         uriEnd = 0;
         protocolEnd = 0;

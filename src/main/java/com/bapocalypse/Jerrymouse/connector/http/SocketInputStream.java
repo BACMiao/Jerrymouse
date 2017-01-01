@@ -167,9 +167,9 @@ public class SocketInputStream extends InputStream {
                 pos = 0;
                 readStart = 0;
             }
-            if (buffer[pos] == CR){
+            if (buffer[pos] == CR) {
 
-            } else if (buffer[pos] == LF){
+            } else if (buffer[pos] == LF) {
                 eol = true;
             } else {
                 httpRequestLine.protocol[readCount] = (char) buffer[pos];

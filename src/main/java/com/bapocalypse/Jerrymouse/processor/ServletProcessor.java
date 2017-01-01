@@ -1,5 +1,7 @@
 package com.bapocalypse.Jerrymouse.processor;
 
+import com.bapocalypse.Jerrymouse.request.HttpRequest;
+import com.bapocalypse.Jerrymouse.response.HttpResponse;
 import com.bapocalypse.Jerrymouse.util.Constants;
 import com.bapocalypse.Jerrymouse.request.Request;
 import com.bapocalypse.Jerrymouse.request.RequestFacade;
@@ -22,8 +24,8 @@ import java.net.URLStreamHandler;
  */
 public class ServletProcessor {
 
-    public void process(Request request, Response response) {
-        String uri = request.getUri();
+    public void process(HttpRequest request, HttpResponse response) {
+        String uri = request.getRequestURI();
         String servletName = uri.substring(uri.lastIndexOf("/") + 1);
         //URLClassLoader类加载器用于从指向 JAR 文件和目录的 URL 的搜索路径加载类和资源。
         URLClassLoader loader = null;

@@ -1,11 +1,13 @@
 package com.bapocalypse.Jerrymouse.request;
 
 import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
+import com.bapocalypse.Jerrymouse.util.ParameterMap;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
@@ -18,9 +20,16 @@ import java.util.*;
  */
 public class HttpRequest implements HttpServletRequest {
     protected HashMap headers = new HashMap();     //HTTP请求的请求头
-    protected ArrayList cookies = new ArrayList();  //HTTP的Cookie信息
-    //protected   HTTP的请求参数信息  todo
+    protected ArrayList cookies = new ArrayList(); //HTTP的Cookie信息
+    protected ParameterMap parameterMap = null;    //HTTP请求参数信息
     private SocketInputStream inputStream;
+
+    private String queryString;                    //URI中的查询字符串
+    private String requestedSessionId;             //URI中的会话标识符
+    private boolean requestedSessionURL;           //查询字符串中是否包含会话标识符
+    private String method;                         //请求行中的方法
+    private String protocol;                       //请求行中的协议
+    private String requestURI;                     //请求行中的URI
 
     public HttpRequest(SocketInputStream inputStream) {
         this.inputStream = inputStream;
@@ -377,5 +386,29 @@ public class HttpRequest implements HttpServletRequest {
     @Override
     public DispatcherType getDispatcherType() {
         return null;
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
+    public void setRequestedSessionId(String requestedSessionId) {
+        this.requestedSessionId = requestedSessionId;
+    }
+
+    public void setRequestedSessionURL(boolean requestedSessionURL) {
+        this.requestedSessionURL = requestedSessionURL;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public void setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
     }
 }
