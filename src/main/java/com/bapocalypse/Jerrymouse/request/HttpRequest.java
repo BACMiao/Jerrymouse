@@ -1,14 +1,11 @@
 package com.bapocalypse.Jerrymouse.request;
 
-import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
 import com.bapocalypse.Jerrymouse.util.ParameterMap;
+import com.bapocalypse.Jerrymouse.util.RequestUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.Principal;
 import java.util.*;
 
@@ -21,8 +18,10 @@ import java.util.*;
 public class HttpRequest implements HttpServletRequest {
     protected HashMap headers = new HashMap();     //HTTP请求的请求头
     protected ArrayList cookies = new ArrayList(); //HTTP的Cookie信息
-    protected ParameterMap parameterMap = null;    //HTTP请求参数信息
-    private SocketInputStream inputStream;
+    private ParameterMap parameters = null;    //HTTP请求参数信息
+    private BufferedReader reader = null;
+    private ServletInputStream stream = null;
+    private InputStream inputStream;
 
     private String queryString;                    //URI中的查询字符串
     private String requestedSessionId;             //URI中的会话标识符
@@ -30,8 +29,12 @@ public class HttpRequest implements HttpServletRequest {
     private String method;                         //请求行中的方法
     private String protocol;                       //请求行中的协议
     private String requestURI;                     //请求行中的URI
+    private String contentType;
+    private int contentLength;
 
-    public HttpRequest(SocketInputStream inputStream) {
+    private boolean parsed = false;                //该请求的参数是否已经被解析了
+
+    public HttpRequest(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
@@ -41,6 +44,71 @@ public class HttpRequest implements HttpServletRequest {
 
     public void addCookie() {
 
+    }
+
+    /**
+     * 如果参数尚未处理，则解析这个请求的参数。
+     * 如果参数存在与查询字符串或HTTP请求体中，该方法会对这两者进行检查，
+     * 解析完成后，参数会存储到对象变量parameters中。
+     */
+    private void parseParameters() {
+        if (parsed) {
+            return;
+        }
+        ParameterMap results = parameters;
+        if (results == null) {
+            results = new ParameterMap();
+        }
+        //打开parameterMap对象的锁，使其可操作
+        results.setLocked(false);
+        //检查字符串编码，若encoding为null，则使用默认编码
+        String encoding = getCharacterEncoding();
+        if (encoding == null) {
+            encoding = "ISO-8859-1";
+        }
+        String queryString = getQueryString();
+        try {
+            RequestUtil.parseParameters(results, queryString, encoding);
+        } catch (UnsupportedEncodingException e) {
+            System.out.println(e);
+        }
+
+        String contentType = getContentType();
+        if (contentType == null) {
+            contentType = "";
+        }
+        int semicolon = contentType.indexOf(";");
+        if (semicolon >= 0) {
+            contentType = contentType.substring(0, semicolon).trim();
+        } else {
+            contentType = contentType.trim();
+        }
+        if ("POST".equals(getMethod()) && getContentLength() > 0
+                && "application/x-www-from-urlencoded".equals(contentType)) {
+            try {
+                int max = getContentLength();
+                int len = 0;
+                byte[] buffer = new byte[getContentLength()];
+                ServletInputStream servletInputStream = getInputStream();
+                while (len < max) {
+                    int next = inputStream.read(buffer, len, max - len);
+                    if (next < 0) {
+                        break;
+                    }
+                    len += next;
+                }
+                inputStream.close();
+                if (len < max) {
+                    throw new RuntimeException("");
+                }
+                RequestUtil.parseParameters(results, buffer, encoding);
+            } catch (IOException e) {
+                throw new RuntimeException("");
+            }
+        }
+        results.setLocked(true);
+        parsed = true;
+        parameters = results;
     }
 
     @Override
@@ -79,11 +147,6 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     @Override
-    public String getMethod() {
-        return null;
-    }
-
-    @Override
     public String getPathInfo() {
         return null;
     }
@@ -98,10 +161,6 @@ public class HttpRequest implements HttpServletRequest {
         return null;
     }
 
-    @Override
-    public String getQueryString() {
-        return null;
-    }
 
     @Override
     public String getRemoteUser() {
@@ -120,11 +179,6 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public String getRequestedSessionId() {
-        return null;
-    }
-
-    @Override
-    public String getRequestURI() {
         return null;
     }
 
@@ -224,23 +278,28 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     @Override
-    public int getContentLength() {
-        return 0;
-    }
-
-    @Override
     public long getContentLengthLong() {
         return 0;
     }
 
-    @Override
-    public String getContentType() {
-        return null;
-    }
-
+    /**
+     *
+     * @return
+     * @throws IOException
+     */
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        return null;
+        if (reader != null) {
+            throw new IllegalStateException("");
+        }
+        if (stream == null) {
+            stream = createInputStream();
+        }
+        return stream;
+    }
+
+    public ServletInputStream createInputStream() throws IOException {
+        return (new RequestStream(this));
     }
 
     @Override
@@ -260,11 +319,6 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public Map<String, String[]> getParameterMap() {
-        return null;
-    }
-
-    @Override
-    public String getProtocol() {
         return null;
     }
 
@@ -392,6 +446,11 @@ public class HttpRequest implements HttpServletRequest {
         this.queryString = queryString;
     }
 
+    @Override
+    public String getQueryString() {
+        return queryString;
+    }
+
     public void setRequestedSessionId(String requestedSessionId) {
         this.requestedSessionId = requestedSessionId;
     }
@@ -404,11 +463,52 @@ public class HttpRequest implements HttpServletRequest {
         this.method = method;
     }
 
+    @Override
+    public String getMethod() {
+        return method;
+    }
+
     public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
 
+    @Override
+    public String getProtocol() {
+        return protocol;
+    }
+
     public void setRequestURI(String requestURI) {
         this.requestURI = requestURI;
+    }
+
+    @Override
+    public String getRequestURI() {
+        return requestURI;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    @Override
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentLength(int contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    @Override
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public InputStream getStream() {
+        return inputStream;
+    }
+
+    public void setStream(ServletInputStream stream) {
+        this.stream = stream;
     }
 }
