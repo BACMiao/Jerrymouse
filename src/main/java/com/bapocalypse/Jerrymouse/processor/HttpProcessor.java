@@ -42,11 +42,11 @@ public class HttpProcessor {
 
             response.setRequest(request);
             //调用HttpResponse类的setHeader()方法向客户端发送响应头信息
-            response.setHeader("Server", "Pyrmont Servlet Container");
+//            response.setHeader("Server", "Pyrmont Servlet Container");
             //解析请求行信息
             parseRequest(inputStream, outputStream);
             //解析请求首部字段信息
-            parseHeader(inputStream);
+//            parseHeader(inputStream);
 
             if (request.getRequestURI().startsWith("/servlet/")) {
                 ServletProcessor processor = new ServletProcessor();

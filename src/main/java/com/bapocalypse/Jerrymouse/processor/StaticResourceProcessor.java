@@ -1,9 +1,7 @@
 package com.bapocalypse.Jerrymouse.processor;
 
 import com.bapocalypse.Jerrymouse.request.HttpRequest;
-import com.bapocalypse.Jerrymouse.request.Request;
 import com.bapocalypse.Jerrymouse.response.HttpResponse;
-import com.bapocalypse.Jerrymouse.response.Response;
 
 import java.io.IOException;
 
@@ -16,10 +14,10 @@ import java.io.IOException;
 public class StaticResourceProcessor {
 
     public void process(HttpRequest request, HttpResponse response) {
-//        try {
-//            response.sendStaticResource();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            response.sendStaticResource();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
