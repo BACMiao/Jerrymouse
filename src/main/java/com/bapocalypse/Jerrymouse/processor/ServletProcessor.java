@@ -1,11 +1,14 @@
 package com.bapocalypse.Jerrymouse.processor;
 
 import com.bapocalypse.Jerrymouse.request.HttpRequest;
+import com.bapocalypse.Jerrymouse.request.HttpRequestFacade;
 import com.bapocalypse.Jerrymouse.response.HttpResponse;
+import com.bapocalypse.Jerrymouse.response.HttpResponseFacade;
 import com.bapocalypse.Jerrymouse.util.Constants;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -60,6 +63,8 @@ public class ServletProcessor {
         }
 
         Servlet servlet = null;
+        HttpRequestFacade requestFacade = new HttpRequestFacade(request);
+        HttpResponseFacade responseFacade = new HttpResponseFacade(response);
         try {
             if (myClass != null) {
                 //创建servlet类的一个新实例
