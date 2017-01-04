@@ -16,21 +16,22 @@ import java.util.*;
  * @Description: HTTP请求的类
  */
 public class HttpRequest implements HttpServletRequest {
-    protected HashMap headers = new HashMap();     //HTTP请求的请求头
-    protected ArrayList cookies = new ArrayList(); //HTTP的Cookie信息
+    protected HashMap<String, ArrayList<String>> headers = new HashMap<>();     //HTTP请求的请求头
+    protected ArrayList<Cookie> cookies = new ArrayList<>(); //HTTP的Cookie信息
     private ParameterMap parameters = null;    //HTTP请求参数信息
     private BufferedReader reader = null;
     private ServletInputStream stream = null;
     private InputStream inputStream;
 
-    private String queryString;                    //URI中的查询字符串
-    private String requestedSessionId;             //URI中的会话标识符
-    private boolean requestedSessionURL;           //查询字符串中是否包含会话标识符
-    private String method;                         //请求行中的方法
-    private String protocol;                       //请求行中的协议
-    private String requestURI;                     //请求行中的URI
-    private String contentType;
-    private int contentLength;
+    private String queryString;                //URI中的查询字符串
+    private String requestedSessionId;         //URI中的会话标识符
+    private boolean requestedSessionURL;       //查询字符串中是否包含会话标识符
+    private String method;                     //请求行中的方法
+    private String protocol;                   //请求行中的协议
+    private String requestURI;                 //请求行中的URI
+    private String contentType;                //请求报文主体的类型
+    private int contentLength;                 //请求报文主体的长度
+    private boolean requestedSessionCookie;
 
     private boolean parsed = false;                //该请求的参数是否已经被解析了
 
@@ -38,12 +39,35 @@ public class HttpRequest implements HttpServletRequest {
         this.inputStream = inputStream;
     }
 
-    public void addHeader() {
-
+    /**
+     * 将首部信息存入到request中的HashMap里面
+     *
+     * @param name  请求首部的名字
+     * @param value 请求首部的值
+     */
+    public void addHeader(String name, String value) {
+        name = name.toLowerCase();
+        //同步锁，保证同一个时间内只有一个线程能改写headers
+        synchronized (headers) {
+            //取出键名为name的键值列表
+            ArrayList<String> values = headers.get(name);
+            if (values == null) {
+                values = new ArrayList<>();
+                headers.put(name, values);
+            }
+            values.add(value);
+        }
     }
 
-    public void addCookie() {
-
+    /**
+     * 将首部信息中的cookie存入到request中的列表中
+     *
+     * @param cookie 首部的cookie
+     */
+    public void addCookie(Cookie cookie) {
+        synchronized (cookies) {
+            cookies.add(cookie);
+        }
     }
 
     /**
@@ -283,7 +307,6 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     /**
-     *
      * @return
      * @throws IOException
      */
@@ -510,5 +533,13 @@ public class HttpRequest implements HttpServletRequest {
 
     public void setStream(ServletInputStream stream) {
         this.stream = stream;
+    }
+
+    public boolean isRequestedSessionCookie() {
+        return requestedSessionCookie;
+    }
+
+    public void setRequestedSessionCookie(boolean requestedSessionCookie) {
+        this.requestedSessionCookie = requestedSessionCookie;
     }
 }

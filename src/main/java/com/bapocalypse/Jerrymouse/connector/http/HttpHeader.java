@@ -13,11 +13,11 @@ public final class HttpHeader {
     static final int MAX_NAME_SIZE = 128;                 //最大键名的大小
     static final int MAX_VALUE_SIZE = 4096;               //最大键值的大小
 
-    public char[] name;
-    public int nameEnd;    //键名数组的最后一个字符的索引值
-    public char[] value;
-    public int valueEnd;   //键值数组的最后一个字符的索引值
-    protected int hashCode = 0;
+    char[] name;
+    int nameEnd;    //键名数组的最后一个字符的索引值
+    char[] value;
+    int valueEnd;   //键值数组的最后一个字符的索引值
+    private int hashCode = 0;
 
     public HttpHeader() {
         this(new char[INITIAL_NAME_SIZE], 0,

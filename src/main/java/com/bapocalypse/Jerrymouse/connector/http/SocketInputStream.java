@@ -177,7 +177,7 @@ public class SocketInputStream extends InputStream {
         if (header.nameEnd != 0) {
             header.recycle();
         }
-        //检查空白行，即跳过请求行与请求头部字段之间的空白行
+        //检查空白行，即跳过请求行与请求首部字段之间的空白行
         int chr = read();
         if ((chr == CR) || (chr == LF)) {
             if (chr == CR) {
@@ -190,8 +190,8 @@ public class SocketInputStream extends InputStream {
             pos--;
         }
 
-        //读取HTTP请求头部字段信息的键名
-        int maxRead = header.name.length;    //请求头部信息键名数组的初始长度（32）
+        //读取HTTP请求首部字段信息的键名
+        int maxRead = header.name.length;    //请求首部信息键名数组的初始长度（32）
         int readStart = pos;                 //开始读取的位置
         int readCount = 0;                   //读取字节数量
         boolean colon = false;               //钩子，用于启动和暂停循环
@@ -206,7 +206,7 @@ public class SocketInputStream extends InputStream {
                     header.name = newBuffer;
                     maxRead = header.name.length;
                 } else {
-                    throw new IOException("请求头部字段的键名太长！");
+                    throw new IOException("请求首部字段的键名太长！");
                 }
             }
 
@@ -228,8 +228,8 @@ public class SocketInputStream extends InputStream {
         //去除最后一个空格
         header.nameEnd = readCount - 1;
 
-        //读取HTTP请求头部字段信息的键值，可跨多行读取
-        maxRead = header.value.length; //请求头部信息键值数组的初始长度（64）
+        //读取HTTP请求首部字段信息的键值，可跨多行读取
+        maxRead = header.value.length; //请求首部信息键值数组的初始长度（64）
         readStart = pos;               //开始读取的位置
         readCount = 0;                 //读取字节数量
 
@@ -258,7 +258,7 @@ public class SocketInputStream extends InputStream {
                         header.value = newBuffer;
                         maxRead = header.value.length;
                     } else {
-                        throw new IOException("请求头部字段的键值太长");
+                        throw new IOException("请求首部字段的键值太长");
                     }
                 }
 
@@ -294,7 +294,7 @@ public class SocketInputStream extends InputStream {
                         header.value = newBuffer;
                         maxRead = header.value.length;
                     } else {
-                        throw new IOException("请求头部字段的键值太长");
+                        throw new IOException("请求首部字段的键值太长");
                     }
                 }
                 header.value[readCount] = ' ';

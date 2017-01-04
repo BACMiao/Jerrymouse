@@ -8,8 +8,10 @@ import com.bapocalypse.Jerrymouse.processor.ServletProcessor;
 import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;
 import com.bapocalypse.Jerrymouse.request.HttpRequest;
 import com.bapocalypse.Jerrymouse.response.HttpResponse;
+import com.bapocalypse.Jerrymouse.util.RequestUtil;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -118,7 +120,9 @@ public class HttpProcessor {
             }
         }
 
-        //检查是否包含会话标识符，会话标识符的参数名为jsessionid
+        //检查是否包含会话标识符，会话标识符的参数名为jsessionid，
+        // 当jsessionid被找到，也意味着会话标识符是携带在查询字符串里边，
+        // 而不是在cookie里边，setRequestedSessionURL()需要传递true
         String match = ";jsessionid=";
         int semicolon = uri.indexOf(match);
         if (semicolon >= 0) {
@@ -156,12 +160,58 @@ public class HttpProcessor {
         }
     }
 
-    private void parseHeader(SocketInputStream inputStream) throws IOException {
+    /**
+     * 解析了一些“简单”的请求首部，像"cookie", "content-length","content-type"，忽略了其他头部
+     *
+     * @param inputStream 包装后的套接字的输入字符流
+     * @throws IOException      会抛出IO异常
+     * @throws ServletException 会抛出Servlet异常
+     */
+    private void parseHeader(SocketInputStream inputStream)
+            throws IOException, ServletException {
         while (true) {
             HttpHeader header = new HttpHeader();
+            //读取首部信息，并填充HttpHeader对象
             inputStream.readHeader(header);
-            if (1>0){
+            //是否已经全部读完请求首部信息
+            if (header.nameEnd == 0) {
+                if (header.valueEnd == 0) {
+                    return;
+                } else {
+                    throw new ServletException("无效的HTTP首部格式");
+                }
+            }
 
+            //获取请求首部的名字和值
+            String name = new String(header.name, 0, header.nameEnd);
+            String value = new String(header.value, 0, header.valueEnd);
+            request.addHeader(name, value);
+            switch (name) {
+                case "cookie":
+                    Cookie[] cookies = RequestUtil.parseCookieHeader(value);
+                    for (Cookie cookie : cookies) {
+                        if (cookie.getName().equals("jsessionid")) {
+                            if (!request.isRequestedSessionIdFromCookie()) {
+                                request.setRequestedSessionId(cookie.getValue());
+                                request.setRequestedSessionCookie(true);
+                                request.setRequestedSessionURL(false);
+                            }
+                        }
+                        request.addCookie(cookie);
+                    }
+                    break;
+                case "content-length":
+                    int n = -1;
+                    try {
+                        n = Integer.parseInt(value);
+                    } catch (Exception e) {
+                        throw new ServletException("报文主体长度格式错误！");
+                    }
+                    request.setContentLength(n);
+                    break;
+                case "content-type":
+                    request.setContentType(value);
+                    break;
             }
         }
     }
