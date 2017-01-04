@@ -4,7 +4,7 @@ package com.bapocalypse.Jerrymouse.connector.http;
  * @package: com.bapocalypse.Jerrymouse.connector.http
  * @Author: 陈淼
  * @Date: 2016/12/22
- * @Description: HTTP请求行的解析，用于判断指定字符串在请求行中是否存在
+ * @Description: HTTP请求行的判定，用于判断指定字符串在请求行中是否存在
  */
 public final class HttpRequestLine {
     private static final int INITIAL_METHOD_SIZE = 8;   //初始方法的大小

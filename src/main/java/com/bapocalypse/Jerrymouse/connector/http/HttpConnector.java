@@ -1,7 +1,5 @@
 package com.bapocalypse.Jerrymouse.connector.http;
 
-import com.bapocalypse.Jerrymouse.processor.HttpProcessor;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;

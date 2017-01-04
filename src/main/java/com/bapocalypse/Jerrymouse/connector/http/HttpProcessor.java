@@ -1,8 +1,11 @@
-package com.bapocalypse.Jerrymouse.processor;
+package com.bapocalypse.Jerrymouse.connector.http;
 
 import com.bapocalypse.Jerrymouse.connector.http.HttpHeader;
 import com.bapocalypse.Jerrymouse.connector.http.HttpRequestLine;
 import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
+import com.bapocalypse.Jerrymouse.processor.Processor;
+import com.bapocalypse.Jerrymouse.processor.ServletProcessor;
+import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;
 import com.bapocalypse.Jerrymouse.request.HttpRequest;
 import com.bapocalypse.Jerrymouse.response.HttpResponse;
 
@@ -50,10 +53,10 @@ public class HttpProcessor {
             parseHeader(inputStream);
 
             if (request.getRequestURI().startsWith("/servlet/")) {
-                ServletProcessor processor = new ServletProcessor();
+                Processor processor = new ServletProcessor();
                 processor.process(request, response);
             } else {
-                StaticResourceProcessor processor = new StaticResourceProcessor();
+                Processor processor = new StaticResourceProcessor();
                 processor.process(request, response);
             }
             socket.close();
@@ -153,7 +156,7 @@ public class HttpProcessor {
         }
     }
 
-    private void parseHeader(SocketInputStream inputStream) {
+    private void parseHeader(SocketInputStream inputStream) throws IOException {
         while (true) {
             HttpHeader header = new HttpHeader();
             inputStream.readHeader(header);

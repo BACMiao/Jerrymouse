@@ -21,8 +21,9 @@ import java.net.URLStreamHandler;
  * @Date: 2016/12/16
  * @Description: 用于处理对servlet资源的HTTP请求
  */
-public class ServletProcessor {
+public class ServletProcessor implements Processor {
 
+    @Override
     public void process(HttpRequest request, HttpResponse response) {
         String uri = request.getRequestURI();
         String servletName = uri.substring(uri.lastIndexOf("/") + 1);
