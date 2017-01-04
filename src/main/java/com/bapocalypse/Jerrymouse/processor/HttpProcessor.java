@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.processor;
 
+import com.bapocalypse.Jerrymouse.connector.http.HttpHeader;
 import com.bapocalypse.Jerrymouse.connector.http.HttpRequestLine;
 import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
 import com.bapocalypse.Jerrymouse.request.HttpRequest;
@@ -42,11 +43,11 @@ public class HttpProcessor {
 
             response.setRequest(request);
             //调用HttpResponse类的setHeader()方法向客户端发送响应头信息
-//            response.setHeader("Server", "Pyrmont Servlet Container");
+            response.setHeader("Server", "Jerrymouse Servlet Container");
             //解析请求行信息
             parseRequest(inputStream, outputStream);
             //解析请求首部字段信息
-//            parseHeader(inputStream);
+            parseHeader(inputStream);
 
             if (request.getRequestURI().startsWith("/servlet/")) {
                 ServletProcessor processor = new ServletProcessor();
@@ -86,7 +87,7 @@ public class HttpProcessor {
         }
 
         //从URI中解析查询字符串
-        int question = requestLine.indexOf("?");
+        int question = requestLine.uriIndexOf("?");
         if (question >= 0) {
             //说明URI中带有查询字符串
             request.setQueryString(new String(requestLine.uri, question + 1,
@@ -137,6 +138,7 @@ public class HttpProcessor {
             request.setRequestedSessionURL(false);
         }
 
+        //对uri进行规范检查以及修正
         String normalizedUri = normalize(uri);
         request.setMethod(method);
         request.setProtocol(protocol);
@@ -152,7 +154,13 @@ public class HttpProcessor {
     }
 
     private void parseHeader(SocketInputStream inputStream) {
+        while (true) {
+            HttpHeader header = new HttpHeader();
+            inputStream.readHeader(header);
+            if (1>0){
 
+            }
+        }
     }
 
     /**

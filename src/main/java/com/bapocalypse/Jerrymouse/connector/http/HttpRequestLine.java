@@ -54,23 +54,23 @@ public final class HttpRequestLine {
      * @param str 指定字符串
      * @return 指定字符串在URI中的出现的首字符的索引值
      */
-    public int indexOf(String str) {
-        return indexOf(str.toCharArray(), str.length());
+    public int uriIndexOf(String str) {
+        return uriIndexOf(str.toCharArray(), str.length());
     }
 
     /**
      * 判断URI中是否包含指定字符数组
      *
      * @param buf 指定字符串数组
-     * @param end 数组的最后一个字符的索引值
+     * @param end 数组的长度
      * @return 指定字符数组在URI中的出现的首字符的索引值
      */
-    private int indexOf(char[] buf, int end) {
+    private int uriIndexOf(char[] buf, int end) {
         char firstChar = buf[0];
         int pos = 0;
         while (pos < uriEnd) {
             //首字符在URI串中第一次出现的索引值
-            pos = indexOf(firstChar, pos);
+            pos = uriIndexOf(firstChar, pos);
             if (pos == -1) {
                 return -1;
             } else if ((uriEnd - pos) < end) {
@@ -97,12 +97,22 @@ public final class HttpRequestLine {
      * @param start 开始的索引值
      * @return 指定字符的索引
      */
-    private int indexOf(char c, int start) {
+    private int uriIndexOf(char c, int start) {
         for (int i = start; i < uriEnd; i++) {
             if (uri[i] == c) {
                 return i;
             }
         }
         return -1;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return false;
     }
 }

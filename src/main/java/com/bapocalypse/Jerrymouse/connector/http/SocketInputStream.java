@@ -181,12 +181,7 @@ public class SocketInputStream extends InputStream {
         httpRequestLine.protocolEnd = readCount;
     }
 
-    /**
-     * 读取所有请求头信息
-     *
-     * @return
-     */
-    public HttpHeader readHeader() {
+    public HttpHeader readHeader(HttpHeader header) {
         return null;
     }
 
