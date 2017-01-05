@@ -18,9 +18,13 @@ import java.util.Locale;
  */
 public class HttpResponse implements HttpServletResponse {
     private static final int BUFFER_SIZE = 1024;
-    private OutputStream outputStream;
+    private OutputStream outputStream;               //输出流
     private HttpRequest request;
     private PrintWriter writer;
+
+    private byte[] buffer = new byte[BUFFER_SIZE]; //缓冲区
+    private int bufferCount = 0;                   //当前缓冲区中的字节数量
+    private int contentCount = 0;                  //写入此response响应的实际字节数（不断递增）
 
     public HttpResponse(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -57,6 +61,66 @@ public class HttpResponse implements HttpServletResponse {
             if (fis != null) {
                 fis.close();
             }
+        }
+    }
+
+    /**
+     * 将特定的字节写入缓冲区中
+     *
+     * @param b 需要写入缓冲区的字节
+     * @throws IOException 抛出IO读写异常
+     */
+    public void write(int b) throws IOException {
+        //说明当前缓冲区已经满了，刷新缓冲区
+        if (bufferCount >= buffer.length) {
+            flushBuffer();
+        }
+        buffer[bufferCount++] = (byte) b;
+        contentCount++;
+    }
+
+    /**
+     * 将特定的字节数组写入到缓冲区中
+     *
+     * @param b 需要写入缓冲区的字节数组
+     * @throws IOException 抛出IO读写异常
+     */
+    public void write(byte[] b) throws IOException {
+        write(b, 0, b.length);
+    }
+
+    /**
+     * 将特定的字节数组写入到缓冲区中，可能字节数组的大小会大于缓冲区，
+     * 所以需要边刷新缓冲区边写入
+     *
+     * @param b   需要写入缓冲区的字节数组
+     * @param off 字节数组的开始索引
+     * @param len 字节数组的长度
+     * @throws IOException 抛出IO读写异常
+     */
+    public void write(byte[] b, int off, int len) throws IOException {
+        if (len == 0) {
+            return;
+        }
+        //如果当前缓冲区剩余的空间，直接将特定数组写入缓冲区
+        if (len <= buffer.length - bufferCount) {
+            System.arraycopy(b, off, buffer, bufferCount, len);
+            bufferCount += len;
+            contentCount += len;
+            return;
+        }
+        //说明当前缓冲区剩余空间不够，刷新缓冲区，并开始写入到完整的缓冲区块
+        flushBuffer();
+        int iterations = len / buffer.length;            //需要写满几块缓冲区
+        int leftoverStart = iterations * buffer.length;  //字节数组超出且未满一块缓冲区的字节的开始索引
+        int leftoverLen = len - leftoverStart;           //字节数组超出且未满一块缓冲区的字节的长度
+        for (int i = 0; i < iterations; i++) {
+            //递归，写满整块缓冲区
+            write(b, off + (i * buffer.length), buffer.length);
+        }
+        //将剩下的字节写入缓冲区
+        if (leftoverLen > 0) {
+            write(b, off + leftoverStart, leftoverLen);
         }
     }
 
@@ -219,9 +283,23 @@ public class HttpResponse implements HttpServletResponse {
         return 0;
     }
 
+    /**
+     * 刷新缓冲区，将缓冲区中的字节全部写入到输出流里面
+     *
+     * @throws IOException 抛出IO读写异常
+     */
     @Override
     public void flushBuffer() throws IOException {
-
+        //如果已经有字节存在于缓冲区
+        if (bufferCount > 0) {
+            try {
+                //将缓冲区中的实际字节写入到输出流里面
+                outputStream.write(buffer, 0, bufferCount);
+            } finally {
+                //缓冲区中的字节全部写入到输出流后，当前的缓冲区字节数量为0
+                bufferCount = 0;
+            }
+        }
     }
 
     @Override
