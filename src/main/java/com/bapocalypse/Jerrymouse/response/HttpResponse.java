@@ -25,6 +25,8 @@ public class HttpResponse implements HttpServletResponse {
     private byte[] buffer = new byte[BUFFER_SIZE]; //缓冲区
     private int bufferCount = 0;                   //当前缓冲区中的字节数量
     private int contentCount = 0;                  //写入此response响应的实际字节数（不断递增）
+    protected String encoding = null;              //该响应相关的字符编码
+    protected String contentType = null;           //响应报文主体的类型
 
     public HttpResponse(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -121,6 +123,16 @@ public class HttpResponse implements HttpServletResponse {
         //将剩下的字节写入缓冲区
         if (leftoverLen > 0) {
             write(b, off + leftoverStart, leftoverLen);
+        }
+    }
+
+    /**
+     * 调用这个方法为输出发送首部信息和响应，否则页面将没有显示信息
+     */
+    public void finishResponse() {
+        if (writer != null){
+            writer.flush();
+            writer.close();
         }
     }
 
@@ -231,12 +243,16 @@ public class HttpResponse implements HttpServletResponse {
 
     @Override
     public String getCharacterEncoding() {
-        return null;
+        if (encoding == null) {
+            return "ISO-8859-1";
+        } else {
+            return encoding;
+        }
     }
 
     @Override
     public String getContentType() {
-        return null;
+        return contentType;
     }
 
     @Override
@@ -246,10 +262,11 @@ public class HttpResponse implements HttpServletResponse {
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        //第二个参数传入true表示对println()方法的任何调用都会刷新输出，
-        // 但是调用print()方法不会刷新输出，因此在servlet的service()方法的最后一行调用print()方法，
-        // 则该输出内容不会被发送给浏览器
-        writer = new PrintWriter(outputStream, true);
+        ResponseStream newStream = new ResponseStream(this);
+        newStream.setCommit(false);
+        //创建使用指定字符集的OutputStreamWriter
+        OutputStreamWriter osr = new OutputStreamWriter(newStream, getCharacterEncoding());
+        writer = new ResponseWriter(osr);
         return writer;
     }
 
@@ -270,7 +287,7 @@ public class HttpResponse implements HttpServletResponse {
 
     @Override
     public void setContentType(String s) {
-
+        this.contentType = s;
     }
 
     @Override

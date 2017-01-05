@@ -1,5 +1,7 @@
 package com.bapocalypse.Jerrymouse.request;
 
+import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
+import com.bapocalypse.Jerrymouse.util.Enumerator;
 import com.bapocalypse.Jerrymouse.util.ParameterMap;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
 
@@ -19,6 +21,7 @@ public class HttpRequest implements HttpServletRequest {
     protected HashMap<String, ArrayList<String>> headers = new HashMap<>();     //HTTP请求的请求头
     protected ArrayList<Cookie> cookies = new ArrayList<>(); //HTTP的Cookie信息
     private ParameterMap parameters = null;    //HTTP请求参数信息
+    protected static ArrayList<String> empty = new ArrayList<>(); //空集合
     private BufferedReader reader = null;
     private ServletInputStream stream = null;
     private InputStream inputStream;
@@ -151,18 +154,36 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     @Override
-    public String getHeader(String s) {
-        return null;
+    public String getHeader(String name) {
+        name = name.toLowerCase();
+        synchronized (headers) {
+            ArrayList<String> values = headers.get(name);
+            if (values != null) {
+                return values.get(0);
+            } else {
+                return null;
+            }
+        }
     }
 
     @Override
-    public Enumeration<String> getHeaders(String s) {
-        return null;
+    public Enumeration<String> getHeaders(String name) {
+        name = name.toLowerCase();
+        synchronized (headers) {
+            ArrayList<String> values = headers.get(name);
+            if (values != null) {
+                return new Enumerator<>(values);
+            } else {
+                return new Enumerator<>(empty);
+            }
+        }
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return null;
+        synchronized (headers) {
+            return new Enumerator<>(headers);
+        }
     }
 
     @Override

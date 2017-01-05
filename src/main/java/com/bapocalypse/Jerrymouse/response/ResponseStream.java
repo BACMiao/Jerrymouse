@@ -8,7 +8,7 @@ import java.io.IOException;
  * @package: com.bapocalypse.Jerrymouse.response
  * @Author: 陈淼
  * @Date: 2017/1/4
- * @Description:
+ * @Description: HTTP响应流
  */
 public class ResponseStream extends ServletOutputStream {
     private boolean closed = false;        //这个流是否被关闭

@@ -8,7 +8,6 @@ import com.bapocalypse.Jerrymouse.util.Constants;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -70,7 +69,9 @@ public class ServletProcessor implements Processor {
             if (myClass != null) {
                 //创建servlet类的一个新实例
                 servlet = (Servlet) myClass.newInstance();
-                servlet.service(request, response);
+                servlet.service(requestFacade, responseFacade);
+                //在此程序中必须调用该方法，否则页面得不到输出
+                response.finishResponse();
             }
         } catch (InstantiationException e) {
             e.printStackTrace();
