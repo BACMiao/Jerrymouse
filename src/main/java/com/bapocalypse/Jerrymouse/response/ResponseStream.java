@@ -17,7 +17,7 @@ public class ResponseStream extends ServletOutputStream {
     private int length = -1;               //报文主体长度，-1表示还未定义
     private HttpResponse response = null;  //输入流相关response
 
-    public ResponseStream(HttpResponse response) {
+    ResponseStream(HttpResponse response) {
         super();
         closed = false;
         commit = false;
