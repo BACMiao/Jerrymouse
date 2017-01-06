@@ -1,6 +1,5 @@
 package com.bapocalypse.Jerrymouse.request;
 
-import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
 import com.bapocalypse.Jerrymouse.util.Enumerator;
 import com.bapocalypse.Jerrymouse.util.ParameterMap;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
@@ -19,10 +18,10 @@ import java.util.*;
  * @Description: HTTP请求的类
  */
 public class HttpRequest implements HttpServletRequest {
-    protected HashMap<String, ArrayList<String>> headers = new HashMap<>(); //HTTP请求的请求头
-    protected ArrayList<Cookie> cookies = new ArrayList<>();                //HTTP的Cookie信息
-    private ParameterMap parameters = null;                                 //HTTP请求参数信息
-    protected static ArrayList<String> empty = new ArrayList<>();           //空集合，代表头部信息为空
+    private HashMap<String, ArrayList<String>> headers = new HashMap<>(); //HTTP请求的请求头
+    private ArrayList<Cookie> cookies = new ArrayList<>();                //HTTP的Cookie信息
+    private ParameterMap<String, String[]> parameters = null;             //HTTP请求参数信息
+    private static ArrayList<String> empty = new ArrayList<>();           //空集合，代表头部信息为空
     private BufferedReader reader = null;
     private ServletInputStream stream = null;
     private InputStream inputStream;              //输入流
@@ -42,8 +41,8 @@ public class HttpRequest implements HttpServletRequest {
     private String contentType;                //请求报文主体的类型
     private int contentLength;                 //请求报文主体的长度
     private boolean requestedSessionCookie;
-
-    private boolean parsed = false;                //该请求的参数是否已经被解析了
+    private boolean parsed = false;            //该请求的参数是否已经被解析了
+    protected String contextPath = "";         //该请求的上下文路径
 
     public HttpRequest(InputStream inputStream) {
         this.inputStream = inputStream;
@@ -83,6 +82,23 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     /**
+     * 获取request中的所有Cookie值
+     *
+     * @return request请求头中的Cookie列表
+     */
+    @Override
+    public Cookie[] getCookies() {
+        synchronized (cookies) {
+            if (cookies.size() < 1) {
+                return null;
+            } else {
+                Cookie[] results = new Cookie[cookies.size()];
+                return cookies.toArray(results);
+            }
+        }
+    }
+
+    /**
      * 如果参数尚未处理，则解析这个请求的参数。
      * 如果参数存在与查询字符串或HTTP请求体中，该方法会对这两者进行检查，
      * 解析完成后，参数会存储到对象变量parameters中。
@@ -92,9 +108,9 @@ public class HttpRequest implements HttpServletRequest {
             //获取的参数已经被解析
             return;
         }
-        ParameterMap results = parameters;
+        ParameterMap<String, String[]> results = parameters;
         if (results == null) {
-            results = new ParameterMap();
+            results = new ParameterMap<>();
         }
         //打开parameterMap对象的锁，使其可操作
         results.setLocked(false);
@@ -103,64 +119,59 @@ public class HttpRequest implements HttpServletRequest {
         if (encoding == null) {
             encoding = "ISO-8859-1";
         }
+        //获得查询字符串
         String queryString = getQueryString();
         try {
+            //对查询字符串进行解析并存入指定map中
             RequestUtil.parseParameters(results, queryString, encoding);
         } catch (UnsupportedEncodingException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
-
+        //获得报文主体的实体类型
         String contentType = getContentType();
         if (contentType == null) {
             contentType = "";
         }
+        //eg Content-Type:text/plain; charset=UTF-8。这里的contentType的值为text/plain; charset=UTF-8
+        //eg Content-Type:text/plain。这里的contentType的值为text/plain
         int semicolon = contentType.indexOf(";");
         if (semicolon >= 0) {
             contentType = contentType.substring(0, semicolon).trim();
         } else {
             contentType = contentType.trim();
         }
+        //使用POST方式提交请求，所以请求体中会包含参数
         if ("POST".equals(getMethod()) && getContentLength() > 0
                 && "application/x-www-from-urlencoded".equals(contentType)) {
             try {
-                int max = getContentLength();
-                int len = 0;
+                int max = getContentLength(); //请求报文主体的长度
+                int len = 0;                  //已经读取的长度
+                //构建缓冲区
                 byte[] buffer = new byte[getContentLength()];
                 ServletInputStream servletInputStream = getInputStream();
                 while (len < max) {
-                    int next = inputStream.read(buffer, len, max - len);
+                    //将输入流的字节读入缓冲区，并返回读入的字节数
+                    int next = servletInputStream.read(buffer, len, max - len);
                     if (next < 0) {
                         break;
                     }
                     len += next;
                 }
-                inputStream.close();
+                //关闭输入流
+                servletInputStream.close();
                 if (len < max) {
-                    throw new RuntimeException("");
+                    throw new RuntimeException("内容长度不匹配！");
                 }
                 RequestUtil.parseParameters(results, buffer, encoding);
             } catch (IOException e) {
-                throw new RuntimeException("");
+                throw new RuntimeException("报文主体内容读取错误");
             }
         }
+        //锁定ParameterMap对象，使其不能对其更改
         results.setLocked(true);
+        //设置查询字符串已经被解析
         parsed = true;
         parameters = results;
-    }
-
-    @Override
-    public String getAuthType() {
-        return null;
-    }
-
-    @Override
-    public Cookie[] getCookies() {
-        return new Cookie[0];
-    }
-
-    @Override
-    public long getDateHeader(String s) {
-        return 0;
     }
 
     @Override
@@ -197,6 +208,16 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     @Override
+    public long getDateHeader(String s) {
+        return 0;
+    }
+
+    @Override
+    public String getAuthType() {
+        return null;
+    }
+
+    @Override
     public int getIntHeader(String s) {
         return 0;
     }
@@ -210,12 +231,6 @@ public class HttpRequest implements HttpServletRequest {
     public String getPathTranslated() {
         return null;
     }
-
-    @Override
-    public String getContextPath() {
-        return null;
-    }
-
 
     @Override
     public String getRemoteUser() {
@@ -234,7 +249,7 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public String getRequestedSessionId() {
-        return null;
+        return requestedSessionId;
     }
 
     @Override
@@ -338,42 +353,87 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     /**
-     * @return
-     * @throws IOException
+     * 获得一个ServletInputStream，用以将输入流的字节存储到缓冲区
+     *
+     * @return 返回一个特定的ServletInputStream
+     * @throws IOException 抛出IO异常
      */
     @Override
     public ServletInputStream getInputStream() throws IOException {
         if (reader != null) {
-            throw new IllegalStateException("");
+            throw new IllegalStateException("getInputStream方法已经被调用！");
         }
+        //如果ServletInputStream实例对象为空，则初始化
         if (stream == null) {
             stream = createInputStream();
         }
         return stream;
     }
 
-    public ServletInputStream createInputStream() throws IOException {
+    /**
+     * 创建和返回一个用来去读取与request相关的报文信息Servlet的输入流
+     *
+     * @return 返回请求的流
+     * @throws IOException 抛出IO读写异常
+     */
+    private ServletInputStream createInputStream() throws IOException {
         return (new RequestStream(this));
     }
 
+    /**
+     * 根据键来获取参数所对应的第一个值
+     *
+     * @param name 需要获取信息的键
+     * @return 返回键所对应的第一个值
+     */
     @Override
-    public String getParameter(String s) {
-        return null;
+    public String getParameter(String name) {
+        parseParameters();
+        String[] values = parameters.get(name);
+        if (values != null) {
+            return values[0];
+        } else {
+            return null;
+        }
     }
 
+    /**
+     * 获取所有查询字符串被解析后的键
+     *
+     * @return 返回一个枚举器
+     */
     @Override
     public Enumeration<String> getParameterNames() {
-        return null;
+        parseParameters();
+        return new Enumerator<>(parameters);
     }
 
+    /**
+     * 根据键来获取参数所对应的所有值
+     *
+     * @param name 需要获取信息的键
+     * @return 返回键所对应的所有值
+     */
     @Override
-    public String[] getParameterValues(String s) {
-        return new String[0];
+    public String[] getParameterValues(String name) {
+        parseParameters();
+        String[] values = parameters.get(name);
+        if (values != null) {
+            return values;
+        } else {
+            return null;
+        }
     }
 
+    /**
+     * 获取请求中查询字符串被解析后所存入的map
+     *
+     * @return 返回存有参数信息的map
+     */
     @Override
     public Map<String, String[]> getParameterMap() {
-        return null;
+        parseParameters();
+        return this.parameters;
     }
 
     @Override
@@ -572,5 +632,14 @@ public class HttpRequest implements HttpServletRequest {
 
     public void setRequestedSessionCookie(boolean requestedSessionCookie) {
         this.requestedSessionCookie = requestedSessionCookie;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    @Override
+    public String getContextPath() {
+        return contextPath;
     }
 }

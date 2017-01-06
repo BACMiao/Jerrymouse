@@ -1,8 +1,5 @@
 package com.bapocalypse.Jerrymouse.connector.http;
 
-import com.bapocalypse.Jerrymouse.connector.http.HttpHeader;
-import com.bapocalypse.Jerrymouse.connector.http.HttpRequestLine;
-import com.bapocalypse.Jerrymouse.connector.http.SocketInputStream;
 import com.bapocalypse.Jerrymouse.processor.Processor;
 import com.bapocalypse.Jerrymouse.processor.ServletProcessor;
 import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;

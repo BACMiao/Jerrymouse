@@ -14,12 +14,12 @@ public final class HttpRequestLine {
     static final int MAX_URI_SIZE = 32768;       //最大uri的大小
     static final int MAX_PROTOCOL_SIZE = 1024;   //最大协议的大小
 
-    public char[] method;
-    public int methodEnd;     //方法数组的最后一个字符的索引值
-    public char[] uri;
-    public int uriEnd;        //URI数组的最后一个字符的索引值
-    public char[] protocol;
-    public int protocolEnd;   //协议数组的最后一个字符的索引值
+    char[] method;
+    int methodEnd;     //方法数组的最后一个字符的索引值
+    char[] uri;
+    int uriEnd;        //URI数组的最后一个字符的索引值
+    char[] protocol;
+    int protocolEnd;   //协议数组的最后一个字符的索引值
 
     public HttpRequestLine() {
         this(new char[INITIAL_METHOD_SIZE], 0,

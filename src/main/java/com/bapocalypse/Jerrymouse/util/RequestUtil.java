@@ -21,10 +21,9 @@ public final class RequestUtil {
      * @param encoding 指定编码
      * @throws UnsupportedEncodingException 抛出未支持编码异常
      */
-    public static void parseParameters(Map map, String data, String encoding)
+    public static void parseParameters(Map<String, String[]> map, String data, String encoding)
             throws UnsupportedEncodingException {
         if (data != null && data.length() > 0) {
-            int length = data.length();
             byte[] bytes = data.getBytes();
             parseParameters(map, bytes, encoding);
         }
@@ -38,7 +37,7 @@ public final class RequestUtil {
      * @param encoding 指定编码
      * @throws UnsupportedEncodingException 抛出未支持编码异常
      */
-    public static void parseParameters(Map map, byte[] data, String encoding)
+    public static void parseParameters(Map<String, String[]> map, byte[] data, String encoding)
             throws UnsupportedEncodingException {
         if (data != null && data.length > 0) {
             int ix = 0;    //当前读取索引
@@ -158,6 +157,7 @@ public final class RequestUtil {
                 cookies.add(new Cookie(name, value));
             }
         }
+        //将cookies转换为为数组并存入到new Cookie[cookies.size()]
         return cookies.toArray(new Cookie[cookies.size()]);
     }
 }

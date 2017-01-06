@@ -122,8 +122,6 @@ public class SocketInputStream extends InputStream {
                 space = true;
             } else if (buffer[pos] == CR || buffer[pos] == LF) {
                 // HTTP/0.9风格的请求
-                eol = true;
-                space = true;
                 throw new IllegalStateException("已不支持此协议");
             }
             httpRequestLine.uri[readCount] = (char) buffer[pos];

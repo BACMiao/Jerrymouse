@@ -62,7 +62,7 @@ public class ServletProcessor implements Processor {
             System.out.println(e.toString());
         }
 
-        Servlet servlet = null;
+        Servlet servlet;
         HttpRequestFacade requestFacade = new HttpRequestFacade(request);
         HttpResponseFacade responseFacade = new HttpResponseFacade(response);
         try {

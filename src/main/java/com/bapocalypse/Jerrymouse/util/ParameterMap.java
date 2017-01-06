@@ -9,7 +9,7 @@ import java.util.Map;
  * @Date: 2017/1/1
  * @Description: 获取参数
  */
-public final class ParameterMap extends HashMap {
+public final class ParameterMap<K, V> extends HashMap<K, V> {
     private boolean locked = false;  //锁，只有其值为false时才能对ParameterMap对象中的键值对进行操作
 
     public ParameterMap() {
@@ -45,7 +45,7 @@ public final class ParameterMap extends HashMap {
     }
 
     @Override
-    public Object put(Object key, Object value) {
+    public V put(K key, V value) {
         if (locked) {
             throw new IllegalStateException("参数映射锁定");
         }
@@ -53,7 +53,7 @@ public final class ParameterMap extends HashMap {
     }
 
     @Override
-    public void putAll(Map m) {
+    public void putAll(Map<? extends K, ? extends V> m) {
         if (locked) {
             throw new IllegalStateException("参数映射锁定");
         }
@@ -61,7 +61,7 @@ public final class ParameterMap extends HashMap {
     }
 
     @Override
-    public Object remove(Object key) {
+    public V remove(Object key) {
         if (locked) {
             throw new IllegalStateException("参数映射锁定");
         }

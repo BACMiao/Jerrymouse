@@ -30,6 +30,8 @@ public class Enumerator<T> implements Enumeration<T> {
         this(map.keySet().iterator());
     }
 
+
+
     @Override
     public boolean hasMoreElements() {
         return iterator.hasNext();
