@@ -11,6 +11,7 @@ import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
 public class BootStrap {
     public static void main(String[] args) {
         HttpConnector connector = new HttpConnector();
+        connector.initialize();
         connector.start();
     }
 }

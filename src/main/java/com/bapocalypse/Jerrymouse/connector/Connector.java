@@ -34,9 +34,9 @@ public interface Connector {
     /**
      * 传入一个服务器套接字工厂给当前容器使用
      *
-     * @param ServerSocketFactory 服务器套接字工厂
+     * @param socketFactory 服务器套接字工厂
      */
-    void setSocketFactory(ServerSocketFactory ServerSocketFactory);
+    void setSocketFactory(ServerSocketFactory socketFactory);
 
     /**
      * 得到当前容器使用的服务器套接字工厂

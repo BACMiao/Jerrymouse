@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.connector.http;
 
+import com.bapocalypse.Jerrymouse.connector.Connector;
 import com.bapocalypse.Jerrymouse.processor.Processor;
 import com.bapocalypse.Jerrymouse.processor.ServletProcessor;
 import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;
@@ -23,6 +24,15 @@ public class HttpProcessor {
     private HttpRequestLine requestLine = new HttpRequestLine();
     private HttpRequest request;
     private HttpResponse response;
+    private Connector connector;
+    private int id;
+
+    public HttpProcessor(Connector connector, int id) {
+//        this.request = request;
+//        this.response = response;
+        this.connector = connector;
+        this.id = id;
+    }
 
     /**
      * 对每一个传入的HTTP请求，进行四步操作：
