@@ -42,7 +42,7 @@ public class HttpRequest implements HttpServletRequest {
     private int contentLength;                 //请求报文主体的长度
     private boolean requestedSessionCookie;
     private boolean parsed = false;            //该请求的参数是否已经被解析了
-    protected String contextPath = "";         //该请求的上下文路径
+    private String contextPath = "";         //该请求的上下文路径
 
     public HttpRequest(InputStream inputStream) {
         this.inputStream = inputStream;

@@ -80,7 +80,7 @@ public class HttpProcessor {
         //从请求行中获取请求方法、URI和请求协议的版本信息
         //第二个参数offset为子数组的第一个字符的索引，第三个参数为指定数组的长度
         String method = new String(requestLine.method, 0, requestLine.methodEnd);
-        String uri = null;
+        String uri;
         String protocol = new String(requestLine.protocol, 0, requestLine.protocolEnd);
         if (method.length() < 1) {
             throw new ServletException("没有HTTP请求方法");
@@ -198,7 +198,7 @@ public class HttpProcessor {
                     }
                     break;
                 case "content-length":
-                    int n = -1;
+                    int n;
                     try {
                         n = Integer.parseInt(value);
                     } catch (Exception e) {
