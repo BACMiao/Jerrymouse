@@ -9,6 +9,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -18,13 +19,19 @@ import java.util.*;
  * @Description: HTTP请求的类
  */
 public class HttpRequest implements HttpServletRequest {
-    protected HashMap<String, ArrayList<String>> headers = new HashMap<>();     //HTTP请求的请求头
-    protected ArrayList<Cookie> cookies = new ArrayList<>(); //HTTP的Cookie信息
-    private ParameterMap parameters = null;    //HTTP请求参数信息
-    protected static ArrayList<String> empty = new ArrayList<>(); //空集合
+    protected HashMap<String, ArrayList<String>> headers = new HashMap<>(); //HTTP请求的请求头
+    protected ArrayList<Cookie> cookies = new ArrayList<>();                //HTTP的Cookie信息
+    private ParameterMap parameters = null;                                 //HTTP请求参数信息
+    protected static ArrayList<String> empty = new ArrayList<>();           //空集合，代表头部信息为空
     private BufferedReader reader = null;
     private ServletInputStream stream = null;
-    private InputStream inputStream;
+    private InputStream inputStream;              //输入流
+    //格式化日期
+    protected SimpleDateFormat formats[] = {
+            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.CHINA),
+            new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.CHINA),
+            new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.CHINA)
+    };
 
     private String queryString;                //URI中的查询字符串
     private String requestedSessionId;         //URI中的会话标识符
@@ -57,8 +64,10 @@ public class HttpRequest implements HttpServletRequest {
             if (values == null) {
                 values = new ArrayList<>();
                 headers.put(name, values);
+                values.add(value);
+            } else {
+                values.add(value);
             }
-            values.add(value);
         }
     }
 
@@ -80,6 +89,7 @@ public class HttpRequest implements HttpServletRequest {
      */
     private void parseParameters() {
         if (parsed) {
+            //获取的参数已经被解析
             return;
         }
         ParameterMap results = parameters;

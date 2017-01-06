@@ -264,7 +264,7 @@ public class HttpResponse implements HttpServletResponse {
     public PrintWriter getWriter() throws IOException {
         ResponseStream newStream = new ResponseStream(this);
         newStream.setCommit(false);
-        //创建使用指定字符集的OutputStreamWriter
+        //创建使用指定字符集的OutputStreamWriter，使传入的字符转换为指定字符集的字节数组
         OutputStreamWriter osr = new OutputStreamWriter(newStream, getCharacterEncoding());
         writer = new ResponseWriter(osr);
         return writer;
