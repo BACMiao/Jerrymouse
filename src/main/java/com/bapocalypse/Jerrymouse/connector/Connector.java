@@ -2,6 +2,10 @@ package com.bapocalypse.Jerrymouse.connector;
 
 import com.bapocalypse.Jerrymouse.connector.http.HttpProcessor;
 import com.bapocalypse.Jerrymouse.net.ServerSocketFactory;
+import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
+import com.bapocalypse.Jerrymouse.request.HttpRequestImpl;
+import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
+import com.bapocalypse.Jerrymouse.response.HttpResponseImpl;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.connector
@@ -24,13 +28,17 @@ public interface Connector {
 
     /**
      * 为引入的HTTP请求创建request对象
+     *
+     * @return 返回创建的request对象
      */
-    void createRequest();
+    HttpRequestImpl createRequest();
 
     /**
      * 为引入的HTTP请求创建response对象
+     *
+     * @return 返回创建的response对象
      */
-    void createResponse();
+    HttpResponseImpl createResponse();
 
     /**
      * 传入一个服务器套接字工厂给当前容器使用

@@ -17,7 +17,7 @@ public class RequestStream extends ServletInputStream {
     private int length = -1;            //报文主体长度，-1表示还未定义
     private InputStream inputStream;    //输入流，用以保存request中的请求输入流
 
-    RequestStream(HttpRequest request) {
+    RequestStream(HttpRequestBase request) {
         super();
         closed = false;
         count = 0;

@@ -12,12 +12,12 @@ import java.util.Locale;
  * @package: com.bapocalypse.Jerrymouse.response
  * @Author: 陈淼
  * @Date: 2017/1/3
- * @Description: HttpResponse 的外观类
+ * @Description: HttpResponseBase 的外观类
  */
 public class HttpResponseFacade implements HttpServletResponse {
-    private HttpResponse response;
+    private HttpResponseBase response;
 
-    public HttpResponseFacade(HttpResponse response) {
+    public HttpResponseFacade(HttpResponseBase response) {
         this.response = response;
     }
 

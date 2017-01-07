@@ -15,9 +15,9 @@ public class ResponseStream extends ServletOutputStream {
     private boolean commit = false;        //当缓冲刷新的时候我们是否应该作出相应响应
     private int count = 0;                 //被写入当前流的字节数（递增的），不能大于报文主体的长度
     private int length = -1;               //报文主体长度，-1表示还未定义
-    private HttpResponse response = null;  //输入流相关response
+    private HttpResponseBase response = null;  //输入流相关response
 
-    ResponseStream(HttpResponse response) {
+    ResponseStream(HttpResponseBase response) {
         super();
         closed = false;
         commit = false;

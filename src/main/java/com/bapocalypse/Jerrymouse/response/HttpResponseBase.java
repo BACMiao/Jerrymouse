@@ -1,9 +1,10 @@
 package com.bapocalypse.Jerrymouse.response;
 
-import com.bapocalypse.Jerrymouse.request.HttpRequest;
+import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.util.Constants;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -16,21 +17,17 @@ import java.util.Locale;
  * @Date: 2016/12/30
  * @Description: HTTP响应的类
  */
-public class HttpResponse implements HttpServletResponse {
+public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     private static final int BUFFER_SIZE = 1024;
     private OutputStream outputStream;               //输出流
-    private HttpRequest request;
+    private HttpRequestBase request;
     private PrintWriter writer;
 
     private byte[] buffer = new byte[BUFFER_SIZE]; //缓冲区
     private int bufferCount = 0;                   //当前缓冲区中的字节数量
     private int contentCount = 0;                  //写入此response响应的实际字节数（不断递增）
-    protected String encoding = null;              //该响应相关的字符编码
-    protected String contentType = null;           //响应报文主体的类型
-
-    public HttpResponse(OutputStream outputStream) {
-        this.outputStream = outputStream;
-    }
+    private String encoding = null;                //该响应相关的字符编码
+    private String contentType = null;             //响应报文主体的类型
 
     /**
      * sendStaticResource()方法用于发送一个静态资源到浏览器
@@ -130,7 +127,7 @@ public class HttpResponse implements HttpServletResponse {
      * 调用这个方法为输出发送首部信息和响应，否则页面将没有显示信息
      */
     public void finishResponse() {
-        if (writer != null){
+        if (writer != null) {
             writer.flush();
             writer.close();
         }
@@ -344,7 +341,15 @@ public class HttpResponse implements HttpServletResponse {
         return null;
     }
 
-    public void setRequest(HttpRequest request) {
+    public void setRequest(HttpRequestBase request) {
         this.request = request;
+    }
+
+    public void setStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
+    public OutputStream getStream() {
+        return outputStream;
     }
 }

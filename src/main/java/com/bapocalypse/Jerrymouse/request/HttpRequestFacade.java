@@ -15,12 +15,12 @@ import java.util.Map;
  * @package: com.bapocalypse.Jerrymouse.response
  * @Author: 陈淼
  * @Date: 2017/1/3
- * @Description: HttpRequest 的外观类
+ * @Description: HttpRequestBase 的外观类
  */
 public class HttpRequestFacade implements HttpServletRequest {
-    private HttpRequest request = null;
+    private HttpRequestBase request = null;
 
-    public HttpRequestFacade(HttpRequest request) {
+    public HttpRequestFacade(HttpRequestBase request) {
         this.request = request;
     }
 

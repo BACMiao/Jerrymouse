@@ -4,6 +4,10 @@ import com.bapocalypse.Jerrymouse.connector.Connector;
 import com.bapocalypse.Jerrymouse.connector.Container;
 import com.bapocalypse.Jerrymouse.net.DefaultServerSocketFactory;
 import com.bapocalypse.Jerrymouse.net.ServerSocketFactory;
+import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
+import com.bapocalypse.Jerrymouse.request.HttpRequestImpl;
+import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
+import com.bapocalypse.Jerrymouse.response.HttpResponseImpl;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -23,7 +27,8 @@ public class HttpConnector implements Runnable, Connector {
     private boolean initialized = false;              //该连接器是否进行了初始化
     private ServerSocket serverSocket = null;         //服务器套接字
     private Stack<HttpProcessor> processors = new Stack<>();  //用于存储HttpProcessor实例，即对象池
-    private boolean stopped = false;                          //钩子，用于停止循环
+    private boolean stopped = false;                  //钩子，用于停止循环
+    private int bufferSize = 2048;                    //缓冲区大小
 
     private int minProcessors = 5;   //HttpProcessor实例的最少个数
     private int maxProcessors = 20;  //HttpProcessor实例的最多个数
@@ -86,8 +91,7 @@ public class HttpConnector implements Runnable, Connector {
                 }
                 continue;
             }
-            // TODO: 2017/1/7
-            processor.process(socket);
+            processor.assign(socket);
         }
     }
 
@@ -164,13 +168,15 @@ public class HttpConnector implements Runnable, Connector {
     }
 
     @Override
-    public void createRequest() {
-
+    public HttpRequestImpl createRequest() {
+        return null;
+// TODO: 2017/1/7  
     }
 
     @Override
-    public void createResponse() {
-
+    public HttpResponseImpl createResponse() {
+        return null;
+// TODO: 2017/1/7  
     }
 
     @Override
@@ -222,5 +228,13 @@ public class HttpConnector implements Runnable, Connector {
 
     public int getCurProcessors() {
         return curProcessors;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
     }
 }

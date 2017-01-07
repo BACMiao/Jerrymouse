@@ -1,7 +1,7 @@
 package com.bapocalypse.Jerrymouse.processor;
 
-import com.bapocalypse.Jerrymouse.request.HttpRequest;
-import com.bapocalypse.Jerrymouse.response.HttpResponse;
+import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
+import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.processor
@@ -10,5 +10,5 @@ import com.bapocalypse.Jerrymouse.response.HttpResponse;
  * @Description: 处理HTTP请求的接口
  */
 public interface Processor {
-    void process(HttpRequest request, HttpResponse response);
+    void process(HttpRequestBase request, HttpResponseBase response);
 }

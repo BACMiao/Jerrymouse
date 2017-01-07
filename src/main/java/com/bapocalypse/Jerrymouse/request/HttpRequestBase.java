@@ -8,7 +8,6 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.security.Principal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -17,20 +16,14 @@ import java.util.*;
  * @Date: 2016/12/21
  * @Description: HTTP请求的类
  */
-public class HttpRequest implements HttpServletRequest {
+public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     private HashMap<String, ArrayList<String>> headers = new HashMap<>(); //HTTP请求的请求头
     private ArrayList<Cookie> cookies = new ArrayList<>();                //HTTP的Cookie信息
     private ParameterMap<String, String[]> parameters = null;             //HTTP请求参数信息
     private static ArrayList<String> empty = new ArrayList<>();           //空集合，代表头部信息为空
     private BufferedReader reader = null;
     private ServletInputStream stream = null;
-    private InputStream inputStream;              //输入流
-    //格式化日期
-    protected SimpleDateFormat formats[] = {
-            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.CHINA),
-            new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.CHINA),
-            new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.CHINA)
-    };
+    private InputStream inputStream;           //输入流，用以保存请求输入流
 
     private String queryString;                //URI中的查询字符串
     private String requestedSessionId;         //URI中的会话标识符
@@ -42,11 +35,7 @@ public class HttpRequest implements HttpServletRequest {
     private int contentLength;                 //请求报文主体的长度
     private boolean requestedSessionCookie;
     private boolean parsed = false;            //该请求的参数是否已经被解析了
-    private String contextPath = "";         //该请求的上下文路径
-
-    public HttpRequest(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
+    private String contextPath = "";           //该请求的上下文路径
 
     /**
      * 将首部信息存入到request中的HashMap里面
@@ -618,12 +607,12 @@ public class HttpRequest implements HttpServletRequest {
         return contentLength;
     }
 
-    public InputStream getStream() {
-        return inputStream;
+    public void setStream(InputStream inputstream) {
+        this.inputStream = inputstream;
     }
 
-    public void setStream(ServletInputStream stream) {
-        this.stream = stream;
+    public InputStream getStream(){
+        return inputStream;
     }
 
     public boolean isRequestedSessionCookie() {
@@ -641,5 +630,9 @@ public class HttpRequest implements HttpServletRequest {
     @Override
     public String getContextPath() {
         return contextPath;
+    }
+
+    public void setInputStream(ServletInputStream stream) {
+        this.stream = stream;
     }
 }

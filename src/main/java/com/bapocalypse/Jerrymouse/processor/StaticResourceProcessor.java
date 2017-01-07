@@ -1,7 +1,7 @@
 package com.bapocalypse.Jerrymouse.processor;
 
-import com.bapocalypse.Jerrymouse.request.HttpRequest;
-import com.bapocalypse.Jerrymouse.response.HttpResponse;
+import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
+import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 public class StaticResourceProcessor implements Processor {
 
     @Override
-    public void process(HttpRequest request, HttpResponse response) {
+    public void process(HttpRequestBase request, HttpResponseBase response) {
         try {
             response.sendStaticResource();
         } catch (IOException e) {
