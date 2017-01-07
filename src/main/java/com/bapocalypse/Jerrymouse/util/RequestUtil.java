@@ -160,4 +160,82 @@ public final class RequestUtil {
         //将cookies转换为为数组并存入到new Cookie[cookies.size()]
         return cookies.toArray(new Cookie[cookies.size()]);
     }
+
+    /**
+     * 对非正常的URL进行修正
+     *
+     * @param path 原始的路径
+     * @return 修正后的路径
+     */
+    public static String normalize(String path) {
+        if (path == null) {
+            return null;
+        }
+        String normalized = path;
+
+        if ((normalized.contains("%25"))
+                || (normalized.contains("%2F"))
+                || (normalized.contains("%2E"))
+                || (normalized.contains("%5C"))
+                || (normalized.contains("%2f"))
+                || (normalized.contains("%2e"))
+                || (normalized.contains("%5c"))) {
+            return null;
+        }
+
+        if (normalized.equals("/.")) {
+            return "/";
+        }
+
+        //规范斜杠；如果必要加上斜杠
+        if (normalized.indexOf('\\') >= 0) {
+            normalized = normalized.replace('\\', '/');
+        }
+        if (!normalized.startsWith("/")) {
+            normalized = "/" + normalized;
+        }
+
+        // 将//替换为/
+        while (true) {
+            int index = normalized.indexOf("//");
+            if (index < 0) {
+                break;
+            } else {
+                normalized = normalized.substring(0, index) +
+                        normalized.indexOf(index + 1);
+            }
+        }
+
+        //将/./替换为/
+        while (true) {
+            int index = normalized.indexOf("/./");
+            if (index < 0) {
+                break;
+            } else {
+                normalized = normalized.substring(0, index) +
+                        normalized.substring(index + 2);
+            }
+        }
+
+        //解决/../的情况
+        while (true) {
+            int index = normalized.indexOf("/../");
+            if (index < 0) {
+                break;
+            } else if (index == 0) {
+                return null;
+            } else {
+                int index2 = normalized.lastIndexOf('/', index - 1);
+                normalized = normalized.substring(0, index2) +
+                        normalized.substring(index + 3);
+            }
+        }
+
+        //默认三个点是无效的
+        if (normalized.contains("/...")) {
+            return null;
+        }
+
+        return normalized;
+    }
 }

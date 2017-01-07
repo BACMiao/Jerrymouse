@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.connector;
 
+import com.bapocalypse.Jerrymouse.connector.http.HttpProcessor;
 import com.bapocalypse.Jerrymouse.net.ServerSocketFactory;
 
 /**
@@ -49,4 +50,11 @@ public interface Connector {
      * 初始化，并绑定端口号
      */
     void initialize();
+
+    /**
+     * 将新创建的HttpProcessor对象压入栈
+     *
+     * @param processor 新创建的HttpProcessor对象
+     */
+    void recycle(HttpProcessor processor);
 }

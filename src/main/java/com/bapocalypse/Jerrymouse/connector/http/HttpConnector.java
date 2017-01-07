@@ -22,8 +22,8 @@ public class HttpConnector implements Runnable, Connector {
     private int backlog = 1;                          //队列的最大长度
     private boolean initialized = false;              //该连接器是否进行了初始化
     private ServerSocket serverSocket = null;         //服务器套接字
-    private Stack<HttpProcessor> processors = new Stack<>();           //用于存储HttpProcessor实例
-    private boolean stopped;                          //钩子，用于停止循环
+    private Stack<HttpProcessor> processors = new Stack<>();  //用于存储HttpProcessor实例，即对象池
+    private boolean stopped = false;                          //钩子，用于停止循环
 
     private int minProcessors = 5;   //HttpProcessor实例的最少个数
     private int maxProcessors = 20;  //HttpProcessor实例的最多个数
@@ -62,7 +62,8 @@ public class HttpConnector implements Runnable, Connector {
     }
 
     /**
-     * 不断接收客户端的请求，并为每一个请求创建HttpProcessor对象
+     * 不断接收客户端的请求，并为每一个请求创建HttpProcessor对象，
+     * 称HttpConnector实例中run()方法运行时所在的线程为“连接器线程”。
      */
     @Override
     public void run() {
@@ -74,7 +75,18 @@ public class HttpConnector implements Runnable, Connector {
                 e.printStackTrace();
                 continue;
             }
-            HttpProcessor processor = new HttpProcessor(this, 0);
+            //得到一个HttpProcessor实例，若createProcessor返回null，服务器会简单关闭套接字，
+            // 不对这个引入的HTTP请求进行处理
+            HttpProcessor processor = createProcessor();
+            if (processor == null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                continue;
+            }
+            // TODO: 2017/1/7
             processor.process(socket);
         }
     }
@@ -84,6 +96,7 @@ public class HttpConnector implements Runnable, Connector {
      */
     private void threadStart() {
         Thread thread = new Thread(this);
+        //设为守护线程后，一旦后台没有除该线程以外的线程运行，立马停止处理
         thread.setDaemon(true);
         thread.start();
     }
@@ -113,8 +126,31 @@ public class HttpConnector implements Runnable, Connector {
      *
      * @param processor 新创建的HttpProcessor对象
      */
-    void recycle(HttpProcessor processor) {
+    @Override
+    public void recycle(HttpProcessor processor) {
         processors.push(processor);
+    }
+
+    /**
+     * 大多数时间里，此方法并不会创建一个新的HttpProcessor实例，而是从池中获取一个对象，
+     * 如果栈中还有HttpProcessor实例可以使用，就从栈中弹出一个HttpProcessor实例，将其返回。
+     * 如果栈已经空了，且已经创建的HttpProcessor实例的数量还没有超过限定的最大值，
+     * createProcessor()就会新建一个HttpProcessor实例。若已经创建的实例数量已经达到最大限定值，
+     * 则返回null，此时，服务器会简单地关闭套接字，不再对新的请求进行处理。
+     *
+     * @return 返回一个HttpProcessor实例或null
+     */
+    private HttpProcessor createProcessor() {
+        synchronized (processors) {
+            if (processors.size() > 0) {
+                return processors.pop();
+            }
+            if (maxProcessors > 0 && curProcessors < maxProcessors) {
+                return newProcessor();
+            } else {
+                return null;
+            }
+        }
     }
 
     @Override

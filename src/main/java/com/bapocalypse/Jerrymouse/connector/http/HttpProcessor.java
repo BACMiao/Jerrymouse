@@ -7,6 +7,7 @@ import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;
 import com.bapocalypse.Jerrymouse.request.HttpRequest;
 import com.bapocalypse.Jerrymouse.response.HttpResponse;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
+import com.sun.xml.internal.bind.v2.TODO;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -18,20 +19,88 @@ import java.net.Socket;
  * @package: com.bapocalypse.Jerrymouse.processor
  * @Author: 陈淼
  * @Date: 2016/12/21
- * @Description: 处理器类，负责创建Request和Response对象
+ * @Description: 处理器类，读取套接字的输入流，解析Http请求，负责创建Request和Response对象
  */
-public class HttpProcessor {
+public class HttpProcessor implements Runnable {
     private HttpRequestLine requestLine = new HttpRequestLine();
     private HttpRequest request;
     private HttpResponse response;
     private Connector connector;
     private int id;
+    private boolean stopped = false;    //钩子，用于停止循环
+    private boolean available = false;  //是否有新的可用套接字
+    private Socket socket = null;
+    private Object threadSync = new Object();
 
     public HttpProcessor(Connector connector, int id) {
 //        this.request = request;
 //        this.response = response;
         this.connector = connector;
         this.id = id;
+    }
+
+    @Override
+    public void run() {
+        //处理request请求，直到我们接收到一个关闭信号
+        while (!stopped) {
+            // TODO: 2017/1/7
+            //获取套接字对象，执行到这儿会阻塞
+            Socket socket = await();
+            if (socket == null) {
+                continue;
+            }
+            //对套接字对象进行处理
+            process(socket);
+            //将当前的HttpProcessor实例压回栈中
+            connector.recycle(this);
+        }
+        //告知threadStop()方法，我们已经成功关闭自己
+        synchronized (threadSync) {
+            threadSync.notifyAll();
+        }
+    }
+
+    /**
+     * await方法会阻塞处理器线程的控制流，直到它从HttpConnector中获取到新的Socket对象，
+     * 也就是直到HttpConnector对象调用HttpProcessor实例的assign()方法前，都会一直阻塞。
+     * 注意:await()和assign()方法并不是运行在同一个线程中。
+     *
+     * @return 返回接收的套接字对象
+     */
+    private synchronized Socket await() {
+        while (!available) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Socket socket = this.socket;
+        available = false;
+        notifyAll();
+        return socket;
+    }
+
+    /**
+     * assign()方法是在HttpConnector对象的run()方法中调用的，assign()方法通过
+     * available的布尔变量和wait()以及notifyAll()方法进行沟通。
+     *
+     * @param socket 从HttpConnector中获取的新的Socket对象
+     */
+    synchronized void assign(Socket socket) {
+        while (available) {
+            try {
+                //使当前线程进入等待状态
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        this.socket = socket;
+        available = true;
+        //唤醒当前线程
+        notifyAll();
     }
 
     /**
@@ -153,7 +222,7 @@ public class HttpProcessor {
         }
 
         //对uri进行规范检查以及修正
-        String normalizedUri = normalize(uri);
+        String normalizedUri = RequestUtil.normalize(uri);
         request.setMethod(method);
         request.setProtocol(protocol);
         if (normalizedUri != null) {
@@ -221,84 +290,6 @@ public class HttpProcessor {
                     break;
             }
         }
-    }
-
-    /**
-     * 对非正常的URL进行修正
-     *
-     * @param path 原始的路径
-     * @return 修正后的路径
-     */
-    private String normalize(String path) {
-        if (path == null) {
-            return null;
-        }
-        String normalized = path;
-
-        if ((normalized.contains("%25"))
-                || (normalized.contains("%2F"))
-                || (normalized.contains("%2E"))
-                || (normalized.contains("%5C"))
-                || (normalized.contains("%2f"))
-                || (normalized.contains("%2e"))
-                || (normalized.contains("%5c"))) {
-            return null;
-        }
-
-        if (normalized.equals("/.")) {
-            return "/";
-        }
-
-        //规范斜杠；如果必要加上斜杠
-        if (normalized.indexOf('\\') >= 0) {
-            normalized = normalized.replace('\\', '/');
-        }
-        if (!normalized.startsWith("/")) {
-            normalized = "/" + normalized;
-        }
-
-        // 将//替换为/
-        while (true) {
-            int index = normalized.indexOf("//");
-            if (index < 0) {
-                break;
-            } else {
-                normalized = normalized.substring(0, index) +
-                        normalized.indexOf(index + 1);
-            }
-        }
-
-        //将/./替换为/
-        while (true) {
-            int index = normalized.indexOf("/./");
-            if (index < 0) {
-                break;
-            } else {
-                normalized = normalized.substring(0, index) +
-                        normalized.substring(index + 2);
-            }
-        }
-
-        //解决/../的情况
-        while (true) {
-            int index = normalized.indexOf("/../");
-            if (index < 0) {
-                break;
-            } else if (index == 0) {
-                return null;
-            } else {
-                int index2 = normalized.lastIndexOf('/', index - 1);
-                normalized = normalized.substring(0, index2) +
-                        normalized.substring(index + 3);
-            }
-        }
-
-        //默认三个点是无效的
-        if (normalized.contains("/...")) {
-            return null;
-        }
-
-        return normalized;
     }
 
 }
