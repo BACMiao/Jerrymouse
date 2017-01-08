@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.request;
 
+import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.util.Enumerator;
 import com.bapocalypse.Jerrymouse.util.ParameterMap;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
@@ -24,6 +25,7 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     private BufferedReader reader = null;
     private ServletInputStream stream = null;
     private InputStream inputStream;           //输入流，用以保存请求输入流
+    private HttpResponseBase response;
 
     private String queryString;                //URI中的查询字符串
     private String requestedSessionId;         //URI中的会话标识符
@@ -611,7 +613,7 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
         this.inputStream = inputstream;
     }
 
-    public InputStream getStream(){
+    public InputStream getStream() {
         return inputStream;
     }
 
@@ -634,5 +636,13 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
 
     public void setInputStream(ServletInputStream stream) {
         this.stream = stream;
+    }
+
+    public void setResponse(HttpResponseBase response) {
+        this.response = response;
+    }
+
+    public HttpResponseBase getResponse() {
+        return response;
     }
 }

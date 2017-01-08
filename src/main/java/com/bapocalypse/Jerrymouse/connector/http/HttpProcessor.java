@@ -1,17 +1,17 @@
 package com.bapocalypse.Jerrymouse.connector.http;
 
-import com.bapocalypse.Jerrymouse.processor.Processor;
-import com.bapocalypse.Jerrymouse.processor.ServletProcessor;
-import com.bapocalypse.Jerrymouse.processor.StaticResourceProcessor;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.request.HttpRequestImpl;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseImpl;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
 
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -32,6 +32,11 @@ public class HttpProcessor implements Runnable {
     private Socket socket = null;
     private Object threadSync = new Object();
     private boolean keepAlive = false;  //该连接是否是持久连接
+    //todo 后期更改为http2.0
+    private boolean http11 = true;      //HTTP请求是否从支持HTTP1.1的客户端发出
+    private boolean sendAck = false;    //当客户端发送一个较长请求体时，询问服务器是否接收
+    private static final byte[] ack =
+            ("HTTP/1.1 100 Continue\r\n\r\n").getBytes(); //服务器可以接收并处理请求
 
     public HttpProcessor(HttpConnector connector, int id) {
         this.request = connector.createRequest();
@@ -130,7 +135,102 @@ public class HttpProcessor implements Runnable {
         keepAlive = true;
         while (!stopped && ok && keepAlive) {
             finishResponse = true;
-            request.setStream(inputStream);
+            try {
+                request.setStream(inputStream);
+                request.setResponse(response);
+                outputStream = socket.getOutputStream();
+                response.setStream(outputStream);
+                response.setRequest(request);
+                response.setHeader("Server", "Jerrymouse Servlet Container");
+            } catch (IOException e) {
+                ok = false;
+                e.printStackTrace();
+            }
+
+            try {
+                if (ok) {
+                    //todo
+                    parseRequest(inputStream, outputStream);
+                    if (request.getProtocol().startsWith("HTTP/1")) {
+                        parseHeader(inputStream);
+                    }
+                    if (http11) {
+                        ackRequest(outputStream);
+                        if (connector.isAllowChunking()) {
+                            response.setAllowChunking(true);
+                        }
+                    }
+                }
+            } catch (EOFException e) {
+                ok = false;
+                finishResponse = false;
+            } catch (ServletException e) {
+                ok = false;
+                try {
+                    // TODO: 2017/1/8
+                    response.sendError(0, null);
+                } catch (IOException e1) {
+                    ;
+                }
+            } catch (IOException e) {
+                ok = false;
+            }
+            //处理过程中没有发生错误，将request和response对象作为参数传入servlet容器的invoke()方法
+            if (ok) {
+                connector.getContainer().invoke(request, response);
+            }
+
+            //若finishResponse为真，则调用response对象的finishResponse()和
+            // request对象的finishRequest()，然后再将结果发送至客户端
+            try {
+                if (finishResponse) {
+                    response.finishResponse();
+                    // TODO: 2017/1/8
+//                request
+                    if (outputStream != null) {
+                        outputStream.flush();
+                    }
+                }
+            } catch (IOException e) {
+                ok = false;
+            }
+
+            if ("close".equals(response.getHeader("Connection"))) {
+                keepAlive = false;
+            }
+            //todo
+
+            try {
+                shutdownInput(inputStream);
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 检查是否可以接收和解析客户端发送的请求体，若其值为true，则将ack的内容写入到此输出流
+     *
+     * @param outputStream 需要被发送给客户端的输出流
+     * @throws IOException 抛出IO读写异常
+     */
+    private void ackRequest(OutputStream outputStream) throws IOException {
+        if (sendAck) {
+            outputStream.write(ack);
+        }
+    }
+
+    /**
+     * 检查是否有未读完的字节，若有，则它跳过这些字节
+     *
+     * @param inputStream 获取输入流
+     * @throws IOException 抛出IO读写异常
+     */
+    private void shutdownInput(InputStream inputStream) throws IOException {
+        int available = inputStream.available();
+        if (available > 0) {
+            inputStream.skip(available);
         }
     }
 
@@ -326,5 +426,4 @@ public class HttpProcessor implements Runnable {
     private void parseConnection(Socket socket) {
 
     }
-
 }

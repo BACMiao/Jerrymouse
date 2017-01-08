@@ -1,9 +1,7 @@
-package com.bapocalypse.Jerrymouse.processor;
+package com.bapocalypse.Jerrymouse.container;
 
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
-import com.bapocalypse.Jerrymouse.request.HttpRequestFacade;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
-import com.bapocalypse.Jerrymouse.response.HttpResponseFacade;
 import com.bapocalypse.Jerrymouse.util.Constants;
 
 import javax.servlet.Servlet;
@@ -15,15 +13,15 @@ import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
 
 /**
- * @package: com.bapocalypse.Jerrymouse.processor
+ * @package: com.bapocalypse.Jerrymouse.container
  * @Author: 陈淼
- * @Date: 2016/12/16
- * @Description: 用于处理对servlet资源的HTTP请求
+ * @Date: 2017/1/8
+ * @Description: 简单的容器类，invoke与原先的ServletProcessor类的process方法相似。
+ * 能与默认连接器进行关联。
  */
-public class ServletProcessor implements Processor {
-
+public class SimpleContainer implements Container {
     @Override
-    public void process(HttpRequestBase request, HttpResponseBase response) {
+    public void invoke(HttpRequestBase request, HttpResponseBase response) {
         String uri = request.getRequestURI();
         String servletName = uri.substring(uri.lastIndexOf("/") + 1);
         //URLClassLoader类加载器用于从指向 JAR 文件和目录的 URL 的搜索路径加载类和资源。
@@ -63,13 +61,11 @@ public class ServletProcessor implements Processor {
         }
 
         Servlet servlet;
-        HttpRequestFacade requestFacade = new HttpRequestFacade(request);
-        HttpResponseFacade responseFacade = new HttpResponseFacade(response);
         try {
             if (myClass != null) {
                 //创建servlet类的一个新实例
                 servlet = (Servlet) myClass.newInstance();
-                servlet.service(requestFacade, responseFacade);
+                servlet.service(request, response);
                 //在此程序中必须调用该方法，否则页面得不到输出
                 response.finishResponse();
             }

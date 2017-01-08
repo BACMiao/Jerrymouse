@@ -7,4 +7,13 @@ package com.bapocalypse.Jerrymouse.response;
  * @Description:
  */
 public class HttpResponseImpl extends HttpResponseBase {
+    protected boolean allowChunking;   //是否允许分块
+
+    public boolean isAllowChunking() {
+        return allowChunking;
+    }
+
+    public void setAllowChunking(boolean allowChunking) {
+        this.allowChunking = allowChunking;
+    }
 }

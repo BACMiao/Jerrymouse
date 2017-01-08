@@ -170,7 +170,9 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
 
     @Override
     public void sendError(int i) throws IOException {
+        if (isCommitted()){
 
+        }
     }
 
     @Override

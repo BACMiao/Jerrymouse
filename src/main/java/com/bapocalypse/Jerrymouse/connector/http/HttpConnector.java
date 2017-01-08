@@ -1,12 +1,10 @@
 package com.bapocalypse.Jerrymouse.connector.http;
 
 import com.bapocalypse.Jerrymouse.connector.Connector;
-import com.bapocalypse.Jerrymouse.connector.Container;
+import com.bapocalypse.Jerrymouse.container.Container;
 import com.bapocalypse.Jerrymouse.net.DefaultServerSocketFactory;
 import com.bapocalypse.Jerrymouse.net.ServerSocketFactory;
-import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.request.HttpRequestImpl;
-import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseImpl;
 
 import java.io.IOException;
@@ -29,6 +27,7 @@ public class HttpConnector implements Runnable, Connector {
     private Stack<HttpProcessor> processors = new Stack<>();  //用于存储HttpProcessor实例，即对象池
     private boolean stopped = false;                  //钩子，用于停止循环
     private int bufferSize = 2048;                    //缓冲区大小
+    private boolean allowChunking = true;             //检查是否允许分块发送
 
     private int minProcessors = 5;   //HttpProcessor实例的最少个数
     private int maxProcessors = 20;  //HttpProcessor实例的最多个数
@@ -236,5 +235,13 @@ public class HttpConnector implements Runnable, Connector {
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    public boolean isAllowChunking() {
+        return allowChunking;
+    }
+
+    public void setAllowChunking(boolean allowChunking) {
+        this.allowChunking = allowChunking;
     }
 }
