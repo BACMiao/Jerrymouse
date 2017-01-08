@@ -1,6 +1,11 @@
 package com.bapocalypse.Jerrymouse.startup;
 
+import com.bapocalypse.Jerrymouse.connector.Connector;
 import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
+import com.bapocalypse.Jerrymouse.container.Container;
+import com.bapocalypse.Jerrymouse.container.SimpleContainer;
+
+import java.io.IOException;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.startup
@@ -11,7 +16,15 @@ import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
 public class BootStrap {
     public static void main(String[] args) {
         HttpConnector connector = new HttpConnector();
-        connector.initialize();
-        connector.start();
+        Container container = new SimpleContainer();
+        connector.setContainer(container);
+        try {
+            connector.initialize();
+            connector.start();
+            //控制台键入任何字符服务器停止
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

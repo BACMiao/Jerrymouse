@@ -28,6 +28,7 @@ public class HttpConnector implements Runnable, Connector {
     private boolean stopped = false;                  //钩子，用于停止循环
     private int bufferSize = 2048;                    //缓冲区大小
     private boolean allowChunking = true;             //检查是否允许分块发送
+    private Container container = null;               //与该连接器连接的servlet容器
 
     private int minProcessors = 5;   //HttpProcessor实例的最少个数
     private int maxProcessors = 20;  //HttpProcessor实例的最多个数
@@ -45,7 +46,7 @@ public class HttpConnector implements Runnable, Connector {
         try {
             serverSocket = open();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Jerrymouse已经启动！");
             System.exit(1);
         }
     }
@@ -72,9 +73,10 @@ public class HttpConnector implements Runnable, Connector {
     @Override
     public void run() {
         while (!stopped) {
-            Socket socket = null;
+            Socket socket;
             try {
                 socket = serverSocket.accept();
+                System.out.println("收到连接");
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;
@@ -89,7 +91,13 @@ public class HttpConnector implements Runnable, Connector {
                     e.printStackTrace();
                 }
                 continue;
+            } else {
+                //若获取到处理器，则运行得到的处理器
+                Thread processorThread = new Thread(processor);
+                processorThread.start();
+                System.out.println("处理器" + processor.getId() + ":开始运行");
             }
+            System.out.println("为处理器" + processor.getId() + "分配套接字");
             processor.assign(socket);
         }
     }
@@ -101,6 +109,7 @@ public class HttpConnector implements Runnable, Connector {
         Thread thread = new Thread(this);
         //设为守护线程后，一旦后台没有除该线程以外的线程运行，立马停止处理
         thread.setDaemon(true);
+        System.out.println("守护线程开始执行" + thread.getName());
         thread.start();
     }
 
@@ -109,6 +118,7 @@ public class HttpConnector implements Runnable, Connector {
         //为每一个请求创建一个HttpProcessor对象
         while (curProcessors < minProcessors) {
             HttpProcessor processor = newProcessor();
+            System.out.println("处理器：" + curProcessors);
             recycle(processor);
         }
     }
@@ -119,9 +129,7 @@ public class HttpConnector implements Runnable, Connector {
      * @return 返回新创建的HttpProcessor实例
      */
     private HttpProcessor newProcessor() {
-        // TODO: 2017/1/6  
-        HttpProcessor processor = new HttpProcessor(this, curProcessors++);
-        return processor;
+        return new HttpProcessor(this, curProcessors++);
     }
 
     /**
@@ -158,24 +166,26 @@ public class HttpConnector implements Runnable, Connector {
 
     @Override
     public void setContainer(Container container) {
-
+        this.container = container;
     }
 
     @Override
     public Container getContainer() {
-        return null;
+        return container;
     }
 
     @Override
     public HttpRequestImpl createRequest() {
-        return null;
-// TODO: 2017/1/7  
+        HttpRequestImpl request = new HttpRequestImpl();
+        request.setConnector(this);
+        return request;
     }
 
     @Override
     public HttpResponseImpl createResponse() {
-        return null;
-// TODO: 2017/1/7  
+        HttpResponseImpl response = new HttpResponseImpl();
+        response.setConnector(this);
+        return response;
     }
 
     @Override

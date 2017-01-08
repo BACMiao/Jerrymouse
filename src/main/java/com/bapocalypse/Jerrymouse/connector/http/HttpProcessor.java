@@ -26,14 +26,13 @@ public class HttpProcessor implements Runnable {
     private HttpRequestImpl request;
     private HttpResponseImpl response;
     private HttpConnector connector;
-    private int id;
+    private int id;   //该处理器的id号
     private boolean stopped = false;    //钩子，表示HttpProcessor实例是否被连接器终止
     private boolean available = false;  //是否有新的可用套接字
     private Socket socket = null;
-    private Object threadSync = new Object();
     private boolean keepAlive = false;  //该连接是否是持久连接
     //todo 后期更改为http2.0
-    private boolean http11 = true;      //HTTP请求是否从支持HTTP1.1的客户端发出
+    private boolean http11 = false;      //HTTP请求是否从支持HTTP1.1的客户端发出
     private boolean sendAck = false;    //当客户端发送一个较长请求体时，询问服务器是否接收
     private static final byte[] ack =
             ("HTTP/1.1 100 Continue\r\n\r\n").getBytes(); //服务器可以接收并处理请求
@@ -52,21 +51,18 @@ public class HttpProcessor implements Runnable {
     public void run() {
         //处理request请求，直到我们接收到一个关闭信号
         while (!stopped) {
-            // TODO: 2017/1/7
             //获取套接字对象，执行到这儿会阻塞
             Socket socket = await();
             if (socket == null) {
                 continue;
             }
             //对套接字对象进行处理
-            process2(socket);
+            process(socket);
             //将当前的HttpProcessor实例压回栈中
             connector.recycle(this);
         }
-        //告知threadStop()方法，我们已经成功关闭自己
-        synchronized (threadSync) {
-            threadSync.notifyAll();
-        }
+        stopped = true;
+        assign(null);
     }
 
     /**
@@ -77,6 +73,7 @@ public class HttpProcessor implements Runnable {
      * @return 返回接收的套接字对象
      */
     private synchronized Socket await() {
+        //线程刚开始运行时，并没有可用的套接字，所以需要等待
         while (!available) {
             try {
                 wait();
@@ -119,9 +116,9 @@ public class HttpProcessor implements Runnable {
      * 2、解析请求
      * 3、解析请求头
      *
-     * @param socket
+     * @param socket 连接到本服务器的套接字
      */
-    private void process2(Socket socket) {
+    private void process(Socket socket) {
         boolean ok = true;  //表示处理的过程中是否有错误发生
         boolean finishResponse = true; //表示是否应该调用Response中的finishResponse()方法
         SocketInputStream inputStream = null;
@@ -144,17 +141,18 @@ public class HttpProcessor implements Runnable {
                 response.setHeader("Server", "Jerrymouse Servlet Container");
             } catch (IOException e) {
                 ok = false;
-                e.printStackTrace();
             }
 
             try {
                 if (ok) {
-                    //todo
+                    //todo 解析连接
                     parseRequest(inputStream, outputStream);
-                    if (request.getProtocol().startsWith("HTTP/1")) {
+                    if (request.getProtocol().startsWith("HTTP/1.1")) {
+                        http11 = true;
                         parseHeader(inputStream);
                     }
                     if (http11) {
+                        System.out.println("支持HTTP/1.1");
                         ackRequest(outputStream);
                         if (connector.isAllowChunking()) {
                             response.setAllowChunking(true);
@@ -169,8 +167,7 @@ public class HttpProcessor implements Runnable {
                 try {
                     // TODO: 2017/1/8
                     response.sendError(0, null);
-                } catch (IOException e1) {
-                    ;
+                } catch (IOException ignored) {
                 }
             } catch (IOException e) {
                 ok = false;
@@ -233,46 +230,6 @@ public class HttpProcessor implements Runnable {
             inputStream.skip(available);
         }
     }
-
-    /**
-     * 对每一个传入的HTTP请求，进行四步操作：
-     * 1、创建一个HttpRequest对象
-     * 2、创建一个HttpResponse对象
-     * 3、解析HTTP请求的第一行内容和请求头信息，填充HttpRequest对象
-     * 4、将HttpRequest对象和HttpResponse对象传递给servletResponse或者
-     * StaticResourceProcessor对象的process()方法。
-     *
-     * @param socket 接收到的套接字对象
-     */
-//    public void process(Socket socket) {
-//        OutputStream outputStream; //返回此套接字的输出流
-//        SocketInputStream inputStream;   //返回此套接字的输入流
-//        try {
-//            outputStream = socket.getOutputStream();
-//            inputStream = new SocketInputStream(socket.getInputStream(), 2048);
-//            request = new HttpRequestBase(inputStream);
-//            response = new HttpResponseBase(outputStream);
-//
-//            response.setRequest(request);
-//            //调用HttpResponse类的setHeader()方法向客户端发送响应头信息
-//            response.setHeader("Server", "Jerrymouse Servlet Container");
-//            //解析请求行信息
-//            parseRequest(inputStream, outputStream);
-//            //解析请求首部字段信息
-//            parseHeader(inputStream);
-//
-//            if (request.getRequestURI().startsWith("/servlet/")) {
-//                Processor processor = new ServletProcessor();
-//                processor.process(request, response);
-//            } else {
-//                Processor processor = new StaticResourceProcessor();
-//                processor.process(request, response);
-//            }
-//            socket.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     /**
      * 解析HTTP请求中的请求行，并填充到HttpRequest对象的成员变量中。
@@ -425,5 +382,13 @@ public class HttpProcessor implements Runnable {
 
     private void parseConnection(Socket socket) {
 
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

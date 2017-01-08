@@ -1,5 +1,7 @@
 package com.bapocalypse.Jerrymouse.request;
 
+import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
+
 /**
  * @package: com.bapocalypse.Jerrymouse.request
  * @Author: 陈淼
@@ -7,5 +9,16 @@ package com.bapocalypse.Jerrymouse.request;
  * @Description:
  */
 public class HttpRequestImpl extends HttpRequestBase {
+    private HttpConnector connector = null;
 
+    public void finishRequest() {
+    }
+
+    public HttpConnector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(HttpConnector connector) {
+        this.connector = connector;
+    }
 }

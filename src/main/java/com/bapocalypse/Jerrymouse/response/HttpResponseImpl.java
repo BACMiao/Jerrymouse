@@ -1,5 +1,7 @@
 package com.bapocalypse.Jerrymouse.response;
 
+import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
+
 /**
  * @package: com.bapocalypse.Jerrymouse.response
  * @Author: 陈淼
@@ -7,7 +9,8 @@ package com.bapocalypse.Jerrymouse.response;
  * @Description:
  */
 public class HttpResponseImpl extends HttpResponseBase {
-    protected boolean allowChunking;   //是否允许分块
+    private boolean allowChunking;   //是否允许分块
+    private HttpConnector connector = null;
 
     public boolean isAllowChunking() {
         return allowChunking;
@@ -15,5 +18,13 @@ public class HttpResponseImpl extends HttpResponseBase {
 
     public void setAllowChunking(boolean allowChunking) {
         this.allowChunking = allowChunking;
+    }
+
+    public HttpConnector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(HttpConnector connector) {
+        this.connector = connector;
     }
 }
