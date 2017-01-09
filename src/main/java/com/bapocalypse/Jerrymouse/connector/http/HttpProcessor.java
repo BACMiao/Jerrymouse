@@ -182,8 +182,7 @@ public class HttpProcessor implements Runnable {
             try {
                 if (finishResponse) {
                     response.finishResponse();
-                    // TODO: 2017/1/8
-//                request
+                    request.finishRequest();
                     if (outputStream != null) {
                         outputStream.flush();
                     }
@@ -195,7 +194,8 @@ public class HttpProcessor implements Runnable {
             if ("close".equals(response.getHeader("Connection"))) {
                 keepAlive = false;
             }
-            //todo
+            request.recycle();
+            response.recycle();
 
             try {
                 shutdownInput(inputStream);

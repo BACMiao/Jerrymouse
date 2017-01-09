@@ -39,6 +39,16 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     private boolean parsed = false;            //该请求的参数是否已经被解析了
     private String contextPath = "";           //该请求的上下文路径
 
+    public void recycle() {
+        contentLength = -1;
+        contentType = null;
+        inputStream = null;
+        protocol = null;
+        reader = null;
+        response = null;
+        stream = null;
+    }
+
     /**
      * 将首部信息存入到request中的HashMap里面
      *
@@ -195,6 +205,22 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     public Enumeration<String> getHeaderNames() {
         synchronized (headers) {
             return new Enumerator<>(headers);
+        }
+    }
+
+    public void finishRequest() {
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException ignored) {
+            }
+        }
+
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 

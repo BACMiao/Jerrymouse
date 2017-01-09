@@ -2,6 +2,8 @@ package com.bapocalypse.Jerrymouse.response;
 
 import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
 
+import java.io.IOException;
+
 /**
  * @package: com.bapocalypse.Jerrymouse.response
  * @Author: 陈淼
@@ -11,6 +13,11 @@ import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
 public class HttpResponseImpl extends HttpResponseBase {
     private boolean allowChunking;   //是否允许分块
     private HttpConnector connector = null;
+
+    @Override
+    public void finishResponse() throws IOException {
+        super.finishResponse();
+    }
 
     public boolean isAllowChunking() {
         return allowChunking;

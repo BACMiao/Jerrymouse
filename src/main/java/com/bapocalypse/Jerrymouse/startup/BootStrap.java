@@ -1,6 +1,5 @@
 package com.bapocalypse.Jerrymouse.startup;
 
-import com.bapocalypse.Jerrymouse.connector.Connector;
 import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
 import com.bapocalypse.Jerrymouse.container.Container;
 import com.bapocalypse.Jerrymouse.container.SimpleContainer;

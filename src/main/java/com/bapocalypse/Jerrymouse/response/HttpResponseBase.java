@@ -20,6 +20,7 @@ import java.util.Locale;
 public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     private static final int BUFFER_SIZE = 1024;
     private OutputStream outputStream;               //输出流
+    private ResponseStream responseStream;
     private HttpRequestBase request;
     private PrintWriter writer;
 
@@ -28,6 +29,19 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     private int contentCount = 0;                  //写入此response响应的实际字节数（不断递增）
     private String encoding = null;                //该响应相关的字符编码
     private String contentType = null;             //响应报文主体的类型
+    private boolean committed = false;           //该响应是否已经被提交
+    private int status = 200;         //HTTP响应码
+
+    public void recycle() {
+        bufferCount = 0;
+        committed = false;
+        contentCount = 0;
+        contentType = null;
+        encoding = null;
+        outputStream = null;
+        writer = null;
+        request = null;
+    }
 
     /**
      * sendStaticResource()方法用于发送一个静态资源到浏览器
@@ -126,10 +140,39 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     /**
      * 调用这个方法为输出发送首部信息和响应，否则页面将没有显示信息
      */
-    public void finishResponse() {
+    public void finishResponse() throws IOException {
+        if (!isCommitted() && responseStream == null && writer == null
+                && contentType == null && contentCount == 0) {
+            setContentType("text/html");
+            PrintWriter writer = getWriter();
+            writer.println("<html>");
+            writer.println("<head>");
+            writer.println("<title>Jerrymouse Error Report</title>");
+            writer.println("</head>");
+            writer.println("<body>");
+            writer.println("<br><br>");
+            writer.println("<h1>HTTP Status ");
+            writer.print(status);
+            writer.println("</h1>");
+            writer.println("</body>");
+            writer.println("</html>");
+        }
+
+        if (this.responseStream == null) {
+            ServletOutputStream sos = getOutputStream();
+            sos.flush();
+            sos.close();
+            return;
+        }
+        if (responseStream.isClosed()) {
+            return;
+        }
         if (writer != null) {
             writer.flush();
             writer.close();
+        } else {
+            responseStream.flush();
+            responseStream.close();
         }
     }
 
@@ -209,7 +252,7 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
 
     @Override
     public void setStatus(int i) {
-
+        this.status = i;
     }
 
     @Override
@@ -219,7 +262,7 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
 
     @Override
     public int getStatus() {
-        return 0;
+        return status;
     }
 
     @Override
@@ -253,7 +296,18 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return null;
+//        if (writer != null) {
+//            throw new IllegalStateException("在这个响应中，getWriter()方法已经被调用！");
+//        }
+        if (responseStream == null) {
+            responseStream = createOutputStream();
+        }
+        responseStream.setCommit(true);
+        return responseStream;
+    }
+
+    private ResponseStream createOutputStream() {
+        return new ResponseStream(this);
     }
 
     @Override
@@ -322,7 +376,7 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
 
     @Override
     public boolean isCommitted() {
-        return false;
+        return committed;
     }
 
     @Override
@@ -351,4 +405,6 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     public OutputStream getStream() {
         return outputStream;
     }
+
+
 }
