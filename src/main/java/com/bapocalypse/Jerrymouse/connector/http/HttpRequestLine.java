@@ -105,14 +105,4 @@ public final class HttpRequestLine {
         }
         return -1;
     }
-
-    @Override
-    public int hashCode() {
-        return 0;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return false;
-    }
 }

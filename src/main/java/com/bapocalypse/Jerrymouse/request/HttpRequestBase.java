@@ -18,8 +18,8 @@ import java.util.*;
  * @Description: HTTP请求的类
  */
 public class HttpRequestBase implements HttpServletRequest, ServletRequest {
-    private HashMap<String, ArrayList<String>> headers = new HashMap<>(); //HTTP请求的请求头
-    private ArrayList<Cookie> cookies = new ArrayList<>();                //HTTP的Cookie信息
+    private final HashMap<String, ArrayList<String>> headers = new HashMap<>(); //HTTP请求的请求头
+    private final ArrayList<Cookie> cookies = new ArrayList<>();                //HTTP的Cookie信息
     private ParameterMap<String, String[]> parameters = null;             //HTTP请求参数信息
     private static ArrayList<String> empty = new ArrayList<>();           //空集合，代表头部信息为空
     private BufferedReader reader = null;
@@ -118,7 +118,7 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
         //检查字符串编码，若encoding为null，则使用默认编码
         String encoding = getCharacterEncoding();
         if (encoding == null) {
-            encoding = "ISO-8859-1";
+            encoding = "UTF-8";
         }
         //获得查询字符串
         String queryString = getQueryString();

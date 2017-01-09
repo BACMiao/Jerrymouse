@@ -11,7 +11,7 @@ import java.io.InputStream;
  * @Description: SocketInputStream类从InputStream对象中读取字节流，
  * SocketInputStream是InputStream的包装类。
  */
-public class SocketInputStream extends InputStream {
+public final class SocketInputStream extends InputStream {
     private InputStream inputStream;
     private byte[] buffer;
     private int count;              //最后一个有效字节在缓冲区的位置，即缓冲区的字节数
@@ -45,7 +45,7 @@ public class SocketInputStream extends InputStream {
             httpRequestLine.recycle();
         }
         //检查空白行，即跳过开头的CR或者LF
-        int chr = 0;
+        int chr;
         do {
             try {
                 chr = read();
@@ -303,7 +303,7 @@ public class SocketInputStream extends InputStream {
     }
 
     /**
-     * 读取字节
+     * 读取字节，返回下标为pos的元素字节所对应的int值，并在之后将pos值+1
      *
      * @return 下标为pos的元素字节所对应的int值
      * @throws IOException 抛出IO异常
@@ -313,7 +313,7 @@ public class SocketInputStream extends InputStream {
         //只有第一次才执行这个判断
         if (pos >= count) {
             fill();
-            if (pos >= count) {
+            if (pos == count) {
                 return -1;
             }
         }
@@ -329,6 +329,7 @@ public class SocketInputStream extends InputStream {
     private void fill() throws IOException {
         pos = 0;
         count = 0;
+        //将HTTP请求的输入流存入缓冲区，返回读入缓冲区的字节数
         int nRead = inputStream.read(buffer, 0, buffer.length);
         if (nRead > 0) {
             count = nRead;

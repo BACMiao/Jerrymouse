@@ -1,8 +1,6 @@
 package com.bapocalypse.Jerrymouse.connector.http;
 
-import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.request.HttpRequestImpl;
-import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseImpl;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
 
@@ -120,10 +118,11 @@ public class HttpProcessor implements Runnable {
      */
     private void process(Socket socket) {
         boolean ok = true;  //表示处理的过程中是否有错误发生
-        boolean finishResponse = true; //表示是否应该调用Response中的finishResponse()方法
+        boolean finishResponse; //表示是否应该调用Response中的finishResponse()方法
         SocketInputStream inputStream = null;
         OutputStream outputStream = null;
         try {
+            //由SocketInputStream来对有套接字获取的请求输入流存入缓冲区
             inputStream = new SocketInputStream(socket.getInputStream(), connector.getBufferSize());
         } catch (IOException e) {
             ok = false;

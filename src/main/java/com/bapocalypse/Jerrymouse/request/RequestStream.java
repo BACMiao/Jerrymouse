@@ -9,7 +9,7 @@ import java.io.InputStream;
  * @package: com.bapocalypse.Jerrymouse.request
  * @Author: 陈淼
  * @Date: 2017/1/2
- * @Description: HTTP请求流
+ * @Description: HTTP请求流读取操作
  */
 public class RequestStream extends ServletInputStream {
     private boolean closed = false;     //这个流是否被关闭

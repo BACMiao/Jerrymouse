@@ -8,7 +8,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -23,6 +25,7 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     private ResponseStream responseStream;
     private HttpRequestBase request;
     private PrintWriter writer;
+    private final HashMap<String, ArrayList<String>> headers = new HashMap<>(); //响应的头部信息
 
     private byte[] buffer = new byte[BUFFER_SIZE]; //缓冲区
     private int bufferCount = 0;                   //当前缓冲区中的字节数量
@@ -232,12 +235,44 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
 
     @Override
     public void setHeader(String name, String value) {
-
+        if (!isCommitted()) {
+            synchronized (headers) {
+                ArrayList<String> values = headers.get(name);
+                if (values == null) {
+                    values = new ArrayList<>();
+                    headers.put(name, values);
+                    values.add(value);
+                } else {
+                    values.add(value);
+                }
+            }
+            String match = name.toLowerCase();
+            if (match.equals("content-length")) {
+                int contentLength;
+                contentLength = Integer.parseInt(value);
+                if (contentLength >= 0) {
+                    setContentLength(contentLength);
+                }
+            } else if (match.equals("content-type")) {
+                setContentType(value);
+            }
+        }
     }
 
     @Override
     public void addHeader(String s, String s1) {
-
+        if (!isCommitted()) {
+            synchronized (headers) {
+                ArrayList<String> values = headers.get(s);
+                if (values == null) {
+                    values = new ArrayList<>();
+                    headers.put(s, values);
+                    values.add(s1);
+                } else {
+                    values.add(s1);
+                }
+            }
+        }
     }
 
     @Override
@@ -283,7 +318,7 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     @Override
     public String getCharacterEncoding() {
         if (encoding == null) {
-            return "ISO-8859-1";
+            return "UTF-8";
         } else {
             return encoding;
         }
