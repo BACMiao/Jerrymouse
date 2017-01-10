@@ -4,7 +4,6 @@ import com.bapocalypse.Jerrymouse.request.HttpRequestImpl;
 import com.bapocalypse.Jerrymouse.response.HttpResponseImpl;
 import com.bapocalypse.Jerrymouse.util.RequestUtil;
 
-
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import java.io.EOFException;
@@ -145,7 +144,7 @@ public class HttpProcessor implements Runnable {
             try {
                 if (ok) {
                     //todo 解析连接
-                    parseRequest(inputStream, outputStream);
+                    parseRequest(inputStream);
                     if (request.getProtocol().startsWith("HTTP/1.1")) {
                         http11 = true;
                         parseHeader(inputStream);
@@ -154,11 +153,13 @@ public class HttpProcessor implements Runnable {
                         System.out.println("支持HTTP/1.1");
                         ackRequest(outputStream);
                         if (connector.isAllowChunking()) {
+                            //todo
                             response.setAllowChunking(true);
                         }
                     }
                 }
             } catch (EOFException e) {
+                e.printStackTrace();
                 ok = false;
                 finishResponse = false;
             } catch (ServletException e) {
@@ -189,19 +190,18 @@ public class HttpProcessor implements Runnable {
             } catch (IOException e) {
                 ok = false;
             }
-
+            //todo 存在一个bug：若用户在浏览器中重复刷新页面，则报Connection reset异常
             if ("close".equals(response.getHeader("Connection"))) {
                 keepAlive = false;
             }
             request.recycle();
             response.recycle();
-
-            try {
-                shutdownInput(inputStream);
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        }
+        try {
+            shutdownInput(inputStream);
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -234,11 +234,10 @@ public class HttpProcessor implements Runnable {
      * 解析HTTP请求中的请求行，并填充到HttpRequest对象的成员变量中。
      * parse()方法并不会解析请求体或查询字符串中的参数，这个任务由各个HttpRequest对象自己完成。
      *
-     * @param inputStream  套接字的包装输入流
-     * @param outputStream 套接字的输出流
+     * @param inputStream 套接字的包装输入流
      * @throws ServletException 抛出ServletException
      */
-    private void parseRequest(SocketInputStream inputStream, OutputStream outputStream)
+    private void parseRequest(SocketInputStream inputStream)
             throws ServletException, IOException {
         //解析请求行内容，使用SocketInputStream对象中的信息填充HttpRequestLine实例
         inputStream.readRequestLine(requestLine);
@@ -375,6 +374,10 @@ public class HttpProcessor implements Runnable {
                 case "content-type":
                     request.setContentType(value);
                     break;
+                case "connection":
+                    if (value.equals("Keep-Alive")){
+                        request.setKeep(true);
+                    }
             }
         }
     }

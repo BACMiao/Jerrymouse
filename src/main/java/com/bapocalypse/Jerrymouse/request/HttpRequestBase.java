@@ -38,6 +38,7 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     private boolean requestedSessionCookie;
     private boolean parsed = false;            //该请求的参数是否已经被解析了
     private String contextPath = "";           //该请求的上下文路径
+    private boolean keep = false;              //是否提供持久连接
 
     public void recycle() {
         contentLength = -1;
@@ -670,5 +671,13 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
 
     public HttpResponseBase getResponse() {
         return response;
+    }
+
+    public boolean isKeep() {
+        return keep;
+    }
+
+    public void setKeep(boolean keep) {
+        this.keep = keep;
     }
 }

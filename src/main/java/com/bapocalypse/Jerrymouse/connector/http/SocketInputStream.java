@@ -50,6 +50,7 @@ public final class SocketInputStream extends InputStream {
             try {
                 chr = read();
             } catch (IOException e) {
+                e.printStackTrace();
                 chr = -1;
             }
         } while ((chr == CR) || (chr == LF));
@@ -101,7 +102,6 @@ public final class SocketInputStream extends InputStream {
         readStart = pos;                          //开始读取的位置（索引）
         readCount = 0;                            //读取的字节数量
         space = false;                            //钩子，用于启动和暂停循环
-        boolean eol = false;
 
         while (!space) {
             if (readCount >= maxRead) {
@@ -134,8 +134,9 @@ public final class SocketInputStream extends InputStream {
         maxRead = httpRequestLine.protocol.length; //协议数组的初始长度（8）
         readStart = pos;                           //开始读取的位置
         readCount = 0;                             //读取的字节数量
+        space = false;                            //钩子，用于启动和暂停循环
 
-        while (!eol) {
+        while (!space) {
             if (readCount >= maxRead) {
                 if ((2 * maxRead) <= HttpRequestLine.MAX_PROTOCOL_SIZE) {
                     char[] newBuffer = new char[2 * maxRead];
@@ -152,7 +153,7 @@ public final class SocketInputStream extends InputStream {
 
             if (buffer[pos] != CR) {
                 if (buffer[pos] == LF) {
-                    eol = true;
+                    space = true;
                 } else {
                     httpRequestLine.protocol[readCount] = (char) buffer[pos];
                     readCount++;
@@ -178,9 +179,7 @@ public final class SocketInputStream extends InputStream {
         //检查空白行，即跳过请求行与请求首部字段之间的空白行
         int chr = read();
         if ((chr == CR) || (chr == LF)) {
-            if (chr == CR) {
-                chr = read();
-            }
+
             header.nameEnd = 0;
             header.valueEnd = 0;
             return;
