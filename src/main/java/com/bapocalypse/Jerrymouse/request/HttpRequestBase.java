@@ -8,6 +8,7 @@ import com.bapocalypse.Jerrymouse.util.RequestUtil;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
+import java.net.Socket;
 import java.security.Principal;
 import java.util.*;
 
@@ -26,6 +27,8 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     private ServletInputStream stream = null;
     private InputStream inputStream;           //输入流，用以保存请求输入流
     private HttpResponseBase response;
+    private int serverPort = -1;             //与这个request信管的服务端口号
+    private Socket socket = null;
 
     private String queryString;                //URI中的查询字符串
     private String requestedSessionId;         //URI中的会话标识符
@@ -679,5 +682,17 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
 
     public void setKeep(boolean keep) {
         this.keep = keep;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 }

@@ -2,6 +2,8 @@ package com.bapocalypse.Jerrymouse.request;
 
 import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
 
+import java.net.InetAddress;
+
 /**
  * @package: com.bapocalypse.Jerrymouse.request
  * @Author: 陈淼
@@ -10,6 +12,7 @@ import com.bapocalypse.Jerrymouse.connector.http.HttpConnector;
  */
 public class HttpRequestImpl extends HttpRequestBase {
     private HttpConnector connector = null;
+    private InetAddress inet = null;
 
     public void finishRequest() {
     }
@@ -20,5 +23,13 @@ public class HttpRequestImpl extends HttpRequestBase {
 
     public void setConnector(HttpConnector connector) {
         this.connector = connector;
+    }
+
+    public InetAddress getInet() {
+        return inet;
+    }
+
+    public void setInet(InetAddress inet) {
+        this.inet = inet;
     }
 }

@@ -30,6 +30,8 @@ public class HttpProcessor implements Runnable {
     private boolean keepAlive = false;  //该连接是否是持久连接
     //todo 后期更改为http2.0
     private boolean http11 = false;      //HTTP请求是否从支持HTTP1.1的客户端发出
+    private int proxyPort = 0;          //代理端口号
+    private int serverPort = 0;
     private boolean sendAck = false;    //当客户端发送一个较长请求体时，询问服务器是否接收
     private static final byte[] ack =
             ("HTTP/1.1 100 Continue\r\n\r\n").getBytes(); //服务器可以接收并处理请求
@@ -143,7 +145,7 @@ public class HttpProcessor implements Runnable {
 
             try {
                 if (ok) {
-                    //todo 解析连接
+                    parseConnection(socket);
                     parseRequest(inputStream);
                     if (request.getProtocol().startsWith("HTTP/1.1")) {
                         http11 = true;
@@ -375,15 +377,27 @@ public class HttpProcessor implements Runnable {
                     request.setContentType(value);
                     break;
                 case "connection":
-                    if (value.equals("Keep-Alive")){
+                    if (value.equals("Keep-Alive")) {
                         request.setKeep(true);
                     }
             }
         }
     }
 
+    /**
+     * 解析连接，从套接字中获取Internet地址，将其赋值给HttpRequestImpl对象，
+     * 此方法还需要检查是否使用了代理
+     *
+     * @param socket 获取到的套接字
+     */
     private void parseConnection(Socket socket) {
-
+        request.setInet(socket.getInetAddress());
+        if (proxyPort != 0) {
+            request.setServerPort(proxyPort);
+        } else {
+            request.setServerPort(serverPort);
+        }
+        request.setSocket(socket);
     }
 
     public int getId() {
