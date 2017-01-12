@@ -4,6 +4,9 @@ import com.bapocalypse.Jerrymouse.loader.Loader;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
+
 /**
  * @package: com.bapocalypse.Jerrymouse.connector
  * @Author: 陈淼
@@ -17,7 +20,7 @@ public interface Container {
      * @param request  HTTP请求对象
      * @param response HTTP响应对象
      */
-    void invoke(HttpRequestBase request, HttpResponseBase response);
+    void invoke(HttpRequestBase request, HttpResponseBase response) throws IOException, ServletException;
 
     /**
      * 向该容器中添加子容器
@@ -56,6 +59,13 @@ public interface Container {
      * @return 返回一个载入器
      */
     Loader getLoader();
+
+    /**
+     * 传入需要使用载入器
+     *
+     * @param loader 需要使用的载入器
+     */
+    void setLoader(Loader loader);
 
 
 }

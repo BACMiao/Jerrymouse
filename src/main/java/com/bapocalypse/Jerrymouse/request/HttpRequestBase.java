@@ -8,6 +8,7 @@ import com.bapocalypse.Jerrymouse.util.RequestUtil;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Principal;
 import java.util.*;
@@ -42,6 +43,7 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
     private boolean parsed = false;            //该请求的参数是否已经被解析了
     private String contextPath = "";           //该请求的上下文路径
     private boolean keep = false;              //是否提供持久连接
+    private InetAddress inet = null;
 
     public void recycle() {
         contentLength = -1;
@@ -479,7 +481,7 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
 
     @Override
     public String getRemoteAddr() {
-        return null;
+        return inet.getHostAddress();
     }
 
     @Override
@@ -694,5 +696,13 @@ public class HttpRequestBase implements HttpServletRequest, ServletRequest {
 
     public void setSocket(Socket socket) {
         this.socket = socket;
+    }
+
+    public InetAddress getInet() {
+        return inet;
+    }
+
+    public void setInet(InetAddress inet) {
+        this.inet = inet;
     }
 }

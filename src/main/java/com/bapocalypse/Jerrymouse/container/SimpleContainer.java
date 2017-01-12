@@ -105,4 +105,9 @@ public class SimpleContainer implements Container {
     public Loader getLoader() {
         return null;
     }
+
+    @Override
+    public void setLoader(Loader loader) {
+
+    }
 }

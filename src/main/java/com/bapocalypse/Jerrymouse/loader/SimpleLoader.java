@@ -40,4 +40,16 @@ public class SimpleLoader implements Loader {
             System.out.println(e.toString());
         }
     }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
+    }
 }

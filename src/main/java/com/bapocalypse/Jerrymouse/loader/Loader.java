@@ -7,4 +7,5 @@ package com.bapocalypse.Jerrymouse.loader;
  * @Description: 载入器的接口，负责在servlet容器中载入相关的servlet类
  */
 public interface Loader {
+    ClassLoader getClassLoader();
 }

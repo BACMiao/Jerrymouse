@@ -12,7 +12,6 @@ import java.net.InetAddress;
  */
 public class HttpRequestImpl extends HttpRequestBase {
     private HttpConnector connector = null;
-    private InetAddress inet = null;
 
     public void finishRequest() {
     }
@@ -25,11 +24,4 @@ public class HttpRequestImpl extends HttpRequestBase {
         this.connector = connector;
     }
 
-    public InetAddress getInet() {
-        return inet;
-    }
-
-    public void setInet(InetAddress inet) {
-        this.inet = inet;
-    }
 }

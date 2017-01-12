@@ -31,7 +31,7 @@ public class SimplePipeline implements Pipeline {
     /**
      * 作为管道的一个内部类实现的，ValveContext可以访问管道中的所有成员
      */
-    protected class StrandardPipelineValveContext implements ValveContext {
+    protected class StandardPipelineValveContext implements ValveContext {
         int stage = 0;
 
         @Override
@@ -88,7 +88,8 @@ public class SimplePipeline implements Pipeline {
 
     @Override
     public void invoke(HttpRequestBase request, HttpResponseBase response) throws IOException, ServletException {
-
+        StandardPipelineValveContext spvc = new StandardPipelineValveContext();
+        spvc.invokeNext(request, response);
     }
 
     @Override
@@ -96,8 +97,12 @@ public class SimplePipeline implements Pipeline {
         valves.remove(valve);
     }
 
-
+    @Override
     public void setContainer(Container container) {
         this.container = container;
+    }
+
+    public Container getContainer() {
+        return container;
     }
 }

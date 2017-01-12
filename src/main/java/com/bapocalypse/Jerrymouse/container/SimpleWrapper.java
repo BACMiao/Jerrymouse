@@ -6,9 +6,11 @@ import com.bapocalypse.Jerrymouse.pipeline.SimplePipeline;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.valve.SimpleWrapperValve;
+import com.bapocalypse.Jerrymouse.valve.Valve;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import java.io.IOException;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.container
@@ -18,26 +20,29 @@ import javax.servlet.ServletException;
  */
 public class SimpleWrapper implements Wrapper {
     private Loader loader;   //指明了载入servlet类要使用的载入器
-    protected Container parent = null; //指明了该Wrapper实例的父容器
+    private Container parent = null; //指明了该Wrapper实例的父容器
     private Pipeline pipeline = new SimplePipeline(this);
+    private String servletClass = null;  //需要载入的servlet的全限定名
+    private Servlet servlet;
 
     public SimpleWrapper() {
-        pipeline.setBasic(new SimpleWrapperValve());
+        pipeline.setBasic(new SimpleWrapperValve(this));
     }
 
     @Override
-    public void invoke(HttpRequestBase request, HttpResponseBase response) {
-
+    public void invoke(HttpRequestBase request, HttpResponseBase response)
+            throws IOException, ServletException {
+        pipeline.invoke(request, response);
     }
 
     @Override
     public void addChild(Container container) {
-
+        throw new IllegalArgumentException("Wrapper已经是最小容器了，不能添加子容器！");
     }
 
     @Override
     public void removeChild(Container container) {
-
+        throw new IllegalArgumentException("Wrapper已经是最小容器了");
     }
 
     @Override
@@ -52,12 +57,33 @@ public class SimpleWrapper implements Wrapper {
 
     @Override
     public Servlet allocate() throws ServletException {
-        return null;
+        load();
+        return servlet;
     }
 
     @Override
     public void load() throws ServletException {
+        Class myClass;
+        try {
+            myClass = loader.getClassLoader().loadClass(servletClass);
+            servlet = (Servlet) myClass.newInstance();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Override
+    public String getServletClass() {
+        return servletClass;
+    }
+
+    @Override
+    public void setServletClass(String servletClass) {
+        this.servletClass = servletClass;
     }
 
     /**
@@ -80,5 +106,10 @@ public class SimpleWrapper implements Wrapper {
 
     public void setLoader(Loader loader) {
         this.loader = loader;
+    }
+
+    @Override
+    public void addValve(Valve valve) {
+        pipeline.addValve(valve);
     }
 }

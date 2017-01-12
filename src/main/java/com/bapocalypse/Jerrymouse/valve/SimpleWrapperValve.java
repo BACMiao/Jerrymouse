@@ -21,6 +21,12 @@ import java.io.IOException;
  * @Description: 基础阀，专门用于吃力对SimpleWrapper类的请求
  */
 public class SimpleWrapperValve implements Valve, Contained {
+    private Container container = null;
+
+    public SimpleWrapperValve(Container container) {
+        this.container = container;
+    }
+
     @Override
     public String getInfo() {
         return null;
@@ -34,7 +40,7 @@ public class SimpleWrapperValve implements Valve, Contained {
         SimpleWrapper wrapper = (SimpleWrapper) getContainer();
         ServletRequest servletRequest = request;
         ServletResponse servletResponse = response;
-        Servlet servlet = null;
+        Servlet servlet;
         HttpServletRequest httpServletRequest = null;
         if (servletRequest instanceof HttpServletRequest) {
             httpServletRequest = (HttpServletRequest) servletRequest;
@@ -43,7 +49,6 @@ public class SimpleWrapperValve implements Valve, Contained {
         if (servletResponse instanceof HttpServletResponse) {
             httpServletResponse = (HttpServletResponse) servletResponse;
         }
-
         servlet = wrapper.allocate();
         if (httpServletRequest != null && httpServletResponse != null) {
             servlet.service(httpServletRequest, httpServletResponse);
@@ -54,11 +59,11 @@ public class SimpleWrapperValve implements Valve, Contained {
 
     @Override
     public Container getContainer() {
-        return null;
+        return container;
     }
 
     @Override
     public void setContainer(Container container) {
-
+        this.container = container;
     }
 }

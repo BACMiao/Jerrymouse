@@ -56,7 +56,13 @@ public class HttpProcessor implements Runnable {
                 continue;
             }
             //对套接字对象进行处理
-            process(socket);
+            try {
+                process(socket);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ServletException e) {
+                e.printStackTrace();
+            }
             //将当前的HttpProcessor实例压回栈中
             connector.recycle(this);
         }
@@ -117,7 +123,7 @@ public class HttpProcessor implements Runnable {
      *
      * @param socket 连接到本服务器的套接字
      */
-    private void process(Socket socket) {
+    private void process(Socket socket) throws IOException, ServletException {
         boolean ok = true;  //表示处理的过程中是否有错误发生
         boolean finishResponse; //表示是否应该调用Response中的finishResponse()方法
         SocketInputStream inputStream = null;
