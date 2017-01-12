@@ -1,11 +1,13 @@
 package com.bapocalypse.Jerrymouse.pipeline;
 
+import com.bapocalypse.Jerrymouse.container.Container;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.valve.Valve;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.pipeline
@@ -16,6 +18,13 @@ import java.io.IOException;
  * 管道就像是servlet编程的过滤器链。
  */
 public interface Pipeline {
+    /**
+     * 与此管道相关联的容器
+     *
+     * @param container 相关联的容器
+     */
+    void setContainer(Container container);
+
     /**
      * 获得被塞入管道的基础阀
      *
@@ -42,7 +51,7 @@ public interface Pipeline {
      *
      * @return 一个阀的数组
      */
-    Valve[] getValves();
+    ArrayList<Valve> getValves();
 
     /**
      * servlet容器会调用这个invoke()来开始调用管道中的阀和基础阀

@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.container;
 
+import com.bapocalypse.Jerrymouse.loader.Loader;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.util.Constants;
@@ -78,5 +79,30 @@ public class SimpleContainer implements Container {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void addChild(Container container) {
+
+    }
+
+    @Override
+    public void removeChild(Container container) {
+
+    }
+
+    @Override
+    public Container findChild(String name) {
+        return null;
+    }
+
+    @Override
+    public Container[] findChildren() {
+        return new Container[0];
+    }
+
+    @Override
+    public Loader getLoader() {
+        return null;
     }
 }
