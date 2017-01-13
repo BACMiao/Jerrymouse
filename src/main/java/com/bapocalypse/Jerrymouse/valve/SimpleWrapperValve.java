@@ -21,6 +21,8 @@ import java.io.IOException;
  * @Description: 基础阀，专门用于处理对SimpleWrapper类的请求
  */
 public class SimpleWrapperValve implements Valve, Contained {
+    private String info =
+            "com.bapocalypse.Jerrymouse.valve.SimpleWrapperValve/1.0";  //该阀的信息
     private Container container = null;
 
     public SimpleWrapperValve(Container container) {
@@ -29,7 +31,7 @@ public class SimpleWrapperValve implements Valve, Contained {
 
     @Override
     public String getInfo() {
-        return null;
+        return info;
     }
 
     @Override

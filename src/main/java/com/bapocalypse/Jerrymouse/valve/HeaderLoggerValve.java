@@ -18,6 +18,8 @@ import java.util.Enumeration;
  * @Description: 阀，在控制台中输出请求首部信息
  */
 public class HeaderLoggerValve implements Valve, Contained {
+    private String info =
+            "com.bapocalypse.Jerrymouse.valve.HeaderLoggerValve/1.0";  //该阀的信息
     private Container container;
 
     @Override
@@ -32,7 +34,7 @@ public class HeaderLoggerValve implements Valve, Contained {
 
     @Override
     public String getInfo() {
-        return null;
+        return info;
     }
 
     @Override

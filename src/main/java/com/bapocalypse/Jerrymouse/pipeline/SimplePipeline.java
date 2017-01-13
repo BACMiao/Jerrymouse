@@ -36,7 +36,7 @@ public class SimplePipeline implements Pipeline {
 
         @Override
         public String getInfo() {
-            return info;
+            return "SimplePipeline.StandardPipelineValveContext/1.0";
         }
 
         /**

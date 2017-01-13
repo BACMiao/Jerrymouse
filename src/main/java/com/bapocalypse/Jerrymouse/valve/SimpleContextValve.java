@@ -14,6 +14,8 @@ import java.io.IOException;
  * @Description: 基础阀，专门用于处理对SimpleContext类的请求
  */
 public class SimpleContextValve implements Valve, Contained {
+    private String info =
+            "com.bapocalypse.Jerrymouse.valve.SimpleContextValve/1.0";  //该阀的信息
     private Container container = null;
 
     public SimpleContextValve(Container container) {
@@ -22,7 +24,7 @@ public class SimpleContextValve implements Valve, Contained {
 
     @Override
     public String getInfo() {
-        return null;
+        return info;
     }
 
     @Override

@@ -16,6 +16,8 @@ import java.io.IOException;
  * @Description: 阀，在控制台中输出客户端的IP地址
  */
 public class ClientIPLoggerValve implements Valve, Contained {
+    private String info =
+            "com.bapocalypse.Jerrymouse.valve.ClientIPLoggerValve/1.0";  //该阀的信息
     private Container container;
 
     @Override
@@ -30,7 +32,7 @@ public class ClientIPLoggerValve implements Valve, Contained {
 
     @Override
     public String getInfo() {
-        return null;
+        return info;
     }
 
     @Override

@@ -128,7 +128,7 @@ public class SimpleContext implements Context {
 
     @Override
     public Container[] findChildren() {
-        return new Container[0];
+        return children.values().toArray(new Container[children.values().size()]);
     }
 
     @Override
