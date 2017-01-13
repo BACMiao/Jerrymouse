@@ -21,7 +21,7 @@ import java.io.IOException;
  * @Date: 2017/1/12
  * @Description: 启动器类
  */
-public class BootStrap2 {
+public class BootStrap {
     public static void main(String[] args) {
         HttpConnector connector = new HttpConnector();
         Wrapper wrapper1 = new SimpleWrapper();
@@ -38,7 +38,6 @@ public class BootStrap2 {
 
         Valve valve1 = new HeaderLoggerValve();
         Valve valve2 = new ClientIPLoggerValve();
-
 
         context.addValve(valve1);
         context.addValve(valve2);

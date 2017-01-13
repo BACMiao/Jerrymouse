@@ -32,19 +32,14 @@ public class SimpleContextValve implements Valve, Contained {
         if (request == null || response == null) {
             return;
         }
-
-        String contextPath = request.getContextPath();
-        String requestURI = request.getRequestURI();
-        String relativeURI =
-                requestURI.substring(contextPath.length()).toUpperCase();
-
         Context ct = (Context) getContainer();
-        Wrapper wrapper;
-        wrapper = (Wrapper) ct.map(request, true);
+        //获得所需要访问servlet的Wrapper
+        Wrapper wrapper = (Wrapper) ct.map(request, true);
         if (wrapper == null) {
             return;
         }
         response.setContext(ct);
+        //wrapper开始处理
         wrapper.invoke(request, response);
     }
 

@@ -24,8 +24,8 @@ public class SimpleContext implements Context {
     private Container parent = null; //指明了该Context实例的父容器
     private Pipeline pipeline = new SimplePipeline(this); //指明了该Context所包含的管道
     private Mapper mapper = null;    //指明了该容器所使用的映射器
-    private final HashMap<String, Mapper> mappers = new HashMap<>();
-    private HashMap<String, String> servletMapping = new HashMap<>();
+    private final HashMap<String, Mapper> mappers = new HashMap<>();   //该容器所包含的映射器列表
+    private HashMap<String, String> servletMapping = new HashMap<>();  //URL模式/Wrapper实例的名称对
     private String name = null;   //指定了该Context的名字
     private final HashMap<String, Container> children = new HashMap<>(); //子容器列表
 

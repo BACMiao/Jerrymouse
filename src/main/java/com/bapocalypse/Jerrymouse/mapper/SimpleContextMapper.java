@@ -48,9 +48,11 @@ public class SimpleContextMapper implements Mapper {
     @Override
     public Container map(HttpRequestBase request, boolean update) {
         String contextPath = request.getContextPath();
+        //获得请求的URI
         String requestURI = request.getRequestURI();
         String relativeURI = requestURI.substring(contextPath.length());
         Wrapper wrapper = null;
+        //通过请求的URI获得相对应的Wrapper
         String name = context.findServletMapping(relativeURI);
         if (name != null) {
             wrapper = (Wrapper) context.findChild(name);

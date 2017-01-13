@@ -19,9 +19,9 @@ import java.util.ArrayList;
 public class SimplePipeline implements Pipeline {
     private String info =
             "com.bapocalypse.Jerrymouse.pipeline.SimplePipeline/1.0";  //该管道的信息
-    private ArrayList<Valve> valves = new ArrayList<>(); //所有阀的链表
+    private final ArrayList<Valve> valves = new ArrayList<>(); //所有阀的链表
     private Valve basic = null;  //基础阀
-    private Container container = null;
+    private Container container = null;  //被哪个容器所包含
 
     public SimplePipeline(Container container) {
         super();
