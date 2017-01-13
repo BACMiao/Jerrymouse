@@ -18,7 +18,7 @@ import java.io.IOException;
  * @package: com.bapocalypse.Jerrymouse.valve
  * @Author: 陈淼
  * @Date: 2017/1/12
- * @Description: 基础阀，专门用于吃力对SimpleWrapper类的请求
+ * @Description: 基础阀，专门用于处理对SimpleWrapper类的请求
  */
 public class SimpleWrapperValve implements Valve, Contained {
     private Container container = null;

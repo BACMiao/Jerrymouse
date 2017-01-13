@@ -8,7 +8,6 @@ import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -16,7 +15,7 @@ import java.util.Enumeration;
  * @package: com.bapocalypse.Jerrymouse.valve
  * @Author: 陈淼
  * @Date: 2017/1/12
- * @Description:
+ * @Description: 阀，在控制台中输出请求首部信息
  */
 public class HeaderLoggerValve implements Valve, Contained {
     private Container container;

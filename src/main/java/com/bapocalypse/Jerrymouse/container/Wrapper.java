@@ -1,7 +1,5 @@
 package com.bapocalypse.Jerrymouse.container;
 
-import com.bapocalypse.Jerrymouse.valve.Valve;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
@@ -42,12 +40,5 @@ public interface Wrapper extends Container {
      * @param servletClass servlet的全限定名
      */
     void setServletClass(String servletClass);
-
-    /**
-     * 向容器中的管道中添加阀
-     *
-     * @param valve 需要使用的阀
-     */
-    void addValve(Valve valve);
 
 }

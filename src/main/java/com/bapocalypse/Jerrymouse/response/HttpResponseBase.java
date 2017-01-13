@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.response;
 
+import com.bapocalypse.Jerrymouse.container.Context;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.util.Constants;
 
@@ -34,6 +35,7 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
     private String contentType = null;             //响应报文主体的类型
     private boolean committed = false;           //该响应是否已经被提交
     private int status = 200;         //HTTP响应码
+    private Context context = null;
 
     public void recycle() {
         bufferCount = 0;
@@ -441,5 +443,11 @@ public class HttpResponseBase implements HttpServletResponse, ServletResponse {
         return outputStream;
     }
 
+    public Context getContext() {
+        return context;
+    }
 
+    public void setContext(Context context) {
+        this.context = context;
+    }
 }

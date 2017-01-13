@@ -88,8 +88,7 @@ public class SimplePipeline implements Pipeline {
 
     @Override
     public void invoke(HttpRequestBase request, HttpResponseBase response) throws IOException, ServletException {
-        StandardPipelineValveContext spvc = new StandardPipelineValveContext();
-        spvc.invokeNext(request, response);
+        new StandardPipelineValveContext().invokeNext(request, response);
     }
 
     @Override

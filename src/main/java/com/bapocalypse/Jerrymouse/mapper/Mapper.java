@@ -7,7 +7,8 @@ import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
  * @package: com.bapocalypse.Jerrymouse.mapper
  * @Author: 陈淼
  * @Date: 2017/1/11
- * @Description: 映射器对HTTP协议的请求进行映射
+ * @Description: 映射器，当应用程序有多个Wrapper实例时，需要一个映射器。映射器是组件，
+ * 帮助servlet容器（Context）选择一个子容器来处理某个指定的请求。
  */
 public interface Mapper {
     /**

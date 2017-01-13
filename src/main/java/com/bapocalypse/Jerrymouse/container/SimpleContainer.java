@@ -4,6 +4,7 @@ import com.bapocalypse.Jerrymouse.loader.Loader;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.util.Constants;
+import com.bapocalypse.Jerrymouse.valve.Valve;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -21,6 +22,9 @@ import java.net.URLStreamHandler;
  * 能与默认连接器进行关联。
  */
 public class SimpleContainer implements Container {
+    private Loader loader = null;  //指明了载入servlet类要使用的载入器
+    private String name = null;    //指明了该容器的名字
+
     @Override
     public void invoke(HttpRequestBase request, HttpResponseBase response) {
         String uri = request.getRequestURI();
@@ -103,11 +107,36 @@ public class SimpleContainer implements Container {
 
     @Override
     public Loader getLoader() {
-        return null;
+        return loader;
     }
 
     @Override
     public void setLoader(Loader loader) {
+        this.loader = loader;
+    }
 
+    @Override
+    public void addValve(Valve valve) {
+
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setParent(Container parent) {
+
+    }
+
+    @Override
+    public Container getParent() {
+        return null;
     }
 }

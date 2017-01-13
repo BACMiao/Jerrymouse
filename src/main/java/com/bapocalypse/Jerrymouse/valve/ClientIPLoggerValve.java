@@ -13,10 +13,11 @@ import java.io.IOException;
  * @package: com.bapocalypse.Jerrymouse.valve
  * @Author: 陈淼
  * @Date: 2017/1/12
- * @Description:
+ * @Description: 阀，在控制台中输出客户端的IP地址
  */
 public class ClientIPLoggerValve implements Valve, Contained {
     private Container container;
+
     @Override
     public Container getContainer() {
         return container;

@@ -16,14 +16,15 @@ import java.io.IOException;
  * @package: com.bapocalypse.Jerrymouse.container
  * @Author: 陈淼
  * @Date: 2017/1/12
- * @Description:
+ * @Description: 简单的Wrapper类，用于载入所包含的servlet类
  */
 public class SimpleWrapper implements Wrapper {
     private Loader loader;   //指明了载入servlet类要使用的载入器
     private Container parent = null; //指明了该Wrapper实例的父容器
     private Pipeline pipeline = new SimplePipeline(this);
     private String servletClass = null;  //需要载入的servlet的全限定名
-    private Servlet servlet;
+    private Servlet servlet;      //需要载入的servlet
+    private String name = null;   //指定该Wrapper的名字
 
     public SimpleWrapper() {
         pipeline.setBasic(new SimpleWrapperValve(this));
@@ -47,12 +48,12 @@ public class SimpleWrapper implements Wrapper {
 
     @Override
     public Container findChild(String name) {
-        return null;
+        throw new IllegalArgumentException("Wrapper已经是最小容器了");
     }
 
     @Override
     public Container[] findChildren() {
-        return new Container[0];
+        throw new IllegalArgumentException("Wrapper已经是最小容器了");
     }
 
     @Override
@@ -65,7 +66,7 @@ public class SimpleWrapper implements Wrapper {
     public void load() throws ServletException {
         Class myClass;
         try {
-            myClass = loader.getClassLoader().loadClass(servletClass);
+            myClass = getLoader().getClassLoader().loadClass(servletClass);
             servlet = (Servlet) myClass.newInstance();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -111,5 +112,25 @@ public class SimpleWrapper implements Wrapper {
     @Override
     public void addValve(Valve valve) {
         pipeline.addValve(valve);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setParent(Container parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public Container getParent() {
+        return parent;
     }
 }
