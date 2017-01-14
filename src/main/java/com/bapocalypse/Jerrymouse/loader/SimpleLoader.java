@@ -1,6 +1,9 @@
 package com.bapocalypse.Jerrymouse.loader;
 
 import com.bapocalypse.Jerrymouse.container.Container;
+import com.bapocalypse.Jerrymouse.exception.LifecycleException;
+import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
+import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 import com.bapocalypse.Jerrymouse.util.Constants;
 
 import java.io.File;
@@ -15,7 +18,7 @@ import java.net.URLStreamHandler;
  * @Date: 2017/1/12
  * @Description: 简单的加载类，负责完成类的载入工作
  */
-public class SimpleLoader implements Loader {
+public class SimpleLoader implements Loader, Lifecycle {
     private ClassLoader classLoader = null;
     private Container container = null;
 
@@ -51,5 +54,30 @@ public class SimpleLoader implements Loader {
 
     public void setContainer(Container container) {
         this.container = container;
+    }
+
+    @Override
+    public void addLifecycleListener(LifecycleListener listener) {
+
+    }
+
+    @Override
+    public LifecycleListener[] findLifecycleListeners() {
+        return new LifecycleListener[0];
+    }
+
+    @Override
+    public void removeLifecycleListener(LifecycleListener listener) {
+
+    }
+
+    @Override
+    public synchronized void start() throws LifecycleException {
+        System.out.println("SimpleLoader启动");
+    }
+
+    @Override
+    public void stop() throws LifecycleException {
+        System.out.println("SimpleLoader结束");
     }
 }

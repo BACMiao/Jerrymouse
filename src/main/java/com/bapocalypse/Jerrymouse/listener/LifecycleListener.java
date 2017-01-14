@@ -1,4 +1,6 @@
-package com.bapocalypse.Jerrymouse.lifecycle;
+package com.bapocalypse.Jerrymouse.listener;
+
+import com.bapocalypse.Jerrymouse.lifecycle.LifecycleEvent;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.lifecycle

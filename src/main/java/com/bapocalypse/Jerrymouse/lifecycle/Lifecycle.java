@@ -1,6 +1,7 @@
 package com.bapocalypse.Jerrymouse.lifecycle;
 
 import com.bapocalypse.Jerrymouse.exception.LifecycleException;
+import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 
 /**
  * @package: com.bapocalypse.Jerrymouse.lifecycle

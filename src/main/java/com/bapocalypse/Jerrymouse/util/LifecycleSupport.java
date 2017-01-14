@@ -2,7 +2,7 @@ package com.bapocalypse.Jerrymouse.util;
 
 import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
 import com.bapocalypse.Jerrymouse.lifecycle.LifecycleEvent;
-import com.bapocalypse.Jerrymouse.lifecycle.LifecycleListener;
+import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 
 import java.util.ArrayList;
 

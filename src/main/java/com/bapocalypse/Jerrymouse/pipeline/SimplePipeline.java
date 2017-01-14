@@ -1,6 +1,9 @@
 package com.bapocalypse.Jerrymouse.pipeline;
 
 import com.bapocalypse.Jerrymouse.container.Container;
+import com.bapocalypse.Jerrymouse.exception.LifecycleException;
+import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
+import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
 import com.bapocalypse.Jerrymouse.valve.Valve;
@@ -16,7 +19,7 @@ import java.util.ArrayList;
  * @Date: 2017/1/12
  * @Description: 简单的管道实现类，用于存放处理request对象和response对象的阀
  */
-public class SimplePipeline implements Pipeline {
+public class SimplePipeline implements Pipeline, Lifecycle {
     private String info =
             "com.bapocalypse.Jerrymouse.pipeline.SimplePipeline/1.0";  //该管道的信息
     private final ArrayList<Valve> valves = new ArrayList<>(); //所有阀的链表
@@ -28,10 +31,36 @@ public class SimplePipeline implements Pipeline {
         setContainer(container);
     }
 
+    @Override
+    public void addLifecycleListener(LifecycleListener listener) {
+
+    }
+
+    @Override
+    public LifecycleListener[] findLifecycleListeners() {
+        return new LifecycleListener[0];
+    }
+
+    @Override
+    public void removeLifecycleListener(LifecycleListener listener) {
+
+    }
+
+    @Override
+    public synchronized void start() throws LifecycleException {
+        System.out.println("SimplePipeline启动");
+    }
+
+    @Override
+    public void stop() throws LifecycleException {
+        System.out.println("SimplePipeline结束");
+    }
+
     /**
      * 作为管道的一个内部类实现的，ValveContext可以访问管道中的所有成员
      */
     protected class StandardPipelineValveContext implements ValveContext {
+
         int stage = 0;
 
         @Override
@@ -62,6 +91,7 @@ public class SimplePipeline implements Pipeline {
                 throw new ServletException("该管道中没有阀！");
             }
         }
+
     }
 
     @Override
@@ -103,5 +133,9 @@ public class SimplePipeline implements Pipeline {
 
     public Container getContainer() {
         return container;
+    }
+
+    public String getInfo() {
+        return info;
     }
 }

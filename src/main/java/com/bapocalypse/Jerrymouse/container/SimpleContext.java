@@ -1,11 +1,15 @@
 package com.bapocalypse.Jerrymouse.container;
 
+import com.bapocalypse.Jerrymouse.exception.LifecycleException;
+import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
+import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 import com.bapocalypse.Jerrymouse.loader.Loader;
 import com.bapocalypse.Jerrymouse.mapper.Mapper;
 import com.bapocalypse.Jerrymouse.pipeline.Pipeline;
 import com.bapocalypse.Jerrymouse.pipeline.SimplePipeline;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 import com.bapocalypse.Jerrymouse.response.HttpResponseBase;
+import com.bapocalypse.Jerrymouse.util.LifecycleSupport;
 import com.bapocalypse.Jerrymouse.valve.SimpleContextValve;
 import com.bapocalypse.Jerrymouse.valve.Valve;
 
@@ -19,7 +23,7 @@ import java.util.HashMap;
  * @Date: 2017/1/12
  * @Description: 简单的Context类，实现了Context接口，包含多个Wrapper实例
  */
-public class SimpleContext implements Context {
+public class SimpleContext implements Context, Lifecycle {
     private Loader loader;   //指明了载入servlet类要使用的载入器
     private Container parent = null; //指明了该Context实例的父容器
     private Pipeline pipeline = new SimplePipeline(this); //指明了该Context所包含的管道
@@ -28,6 +32,8 @@ public class SimpleContext implements Context {
     private HashMap<String, String> servletMapping = new HashMap<>();  //URL模式/Wrapper实例的名称对
     private String name = null;   //指定了该Context的名字
     private final HashMap<String, Container> children = new HashMap<>(); //子容器列表
+    private LifecycleSupport lifecycle = new LifecycleSupport(this); //生命周期工具类
+    private boolean started = false;  //指明SimpleContext实例是否已经启动
 
     public SimpleContext() {
         pipeline.setBasic(new SimpleContextValve(this));
@@ -170,5 +176,100 @@ public class SimpleContext implements Context {
     @Override
     public Container getParent() {
         return parent;
+    }
+
+    @Override
+    public void addLifecycleListener(LifecycleListener listener) {
+        lifecycle.addLifecycleListener(listener);
+    }
+
+    @Override
+    public LifecycleListener[] findLifecycleListeners() {
+        return null;
+    }
+
+    @Override
+    public void removeLifecycleListener(LifecycleListener listener) {
+        lifecycle.removeLifecycleListener(listener);
+    }
+
+    /**
+     * 启动所有子容器以及相关的组件，包括载入器和映射器，使用单一启动/关闭机制，
+     * 使用这种机制，只需要启动最高层级的组件即可，其余的组件会由各自的父组件去启动。
+     *
+     * @throws LifecycleException 抛出Lifecycle异常
+     */
+    @Override
+    public synchronized void start() throws LifecycleException {
+        //检查该组件是否启动过了
+        if (started) {
+            throw new LifecycleException("SimpleContext 已经启动！");
+        }
+        //触发BEFORE_START_EVENT事件，SimpleContext实例中对该事件进行监听
+        // 的所有监听器都会收到通知。
+        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
+        started = true;
+        //启动它的组件和子容器
+        try {
+            if (loader != null && loader instanceof Lifecycle) {
+                ((Lifecycle) loader).start();
+            }
+
+            Container[] children = findChildren();
+            for (Container child : children) {
+                if (child instanceof Lifecycle) {
+                    ((Lifecycle) child).start();
+                }
+            }
+
+            if (pipeline instanceof Lifecycle) {
+                ((Lifecycle) pipeline).start();
+            }
+            //触发START_EVENT事件
+            lifecycle.fireLifecycleEvent(START_EVENT, null);
+        } catch (LifecycleException e) {
+            e.printStackTrace();
+        }
+        //触发AFTER_START_EVENT事件
+        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
+    }
+
+    /**
+     * 关闭所有子容器以及相关的组件，包括载入器和映射器
+     *
+     * @throws LifecycleException 抛出Lifecycle异常
+     */
+    @Override
+    public void stop() throws LifecycleException {
+        //检查该组件是否已经关闭
+        if (!started) {
+            throw new LifecycleException("SimpleContext已经被关闭！");
+        }
+        //触发BEFORE_STOP_EVENT事件
+        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+        //触发STOP_EVENT事件
+        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        started = false;
+        //关闭所关联的所有组件和子容器
+        try {
+            if (pipeline instanceof Lifecycle) {
+                ((Lifecycle) pipeline).stop();
+            }
+
+            Container[] children = findChildren();
+            for (Container child : children) {
+                if (child instanceof Lifecycle) {
+                    ((Lifecycle) child).stop();
+                }
+            }
+
+            if (loader != null && loader instanceof Lifecycle) {
+                ((Lifecycle) loader).stop();
+            }
+        } catch (LifecycleException e) {
+            e.printStackTrace();
+        }
+        //AFTER_STOP_EVENT
+        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
     }
 }
