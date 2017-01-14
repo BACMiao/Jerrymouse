@@ -7,6 +7,7 @@ import com.bapocalypse.Jerrymouse.container.SimpleWrapper;
 import com.bapocalypse.Jerrymouse.container.Wrapper;
 import com.bapocalypse.Jerrymouse.exception.LifecycleException;
 import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
+import com.bapocalypse.Jerrymouse.listener.SimpleContextLifecycleListener;
 import com.bapocalypse.Jerrymouse.loader.Loader;
 import com.bapocalypse.Jerrymouse.loader.SimpleLoader;
 import com.bapocalypse.Jerrymouse.mapper.Mapper;
@@ -54,6 +55,7 @@ public class BootStrap {
         context.addServletMapping("/Modern", "Modern");
         connector.setContainer(context);
         try {
+            lifecycle.addLifecycleListener(new SimpleContextLifecycleListener());
             lifecycle.start();
             connector.initialize();
             connector.start();

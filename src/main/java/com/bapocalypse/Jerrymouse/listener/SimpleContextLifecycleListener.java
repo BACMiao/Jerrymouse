@@ -17,7 +17,7 @@ public class SimpleContextLifecycleListener implements LifecycleListener {
      */
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
-        System.out.println("SimpleContextLifecycleListener的事件" + event.getType());
+        System.out.println("SimpleContextLifecycleListener的事件 " + event.getType());
         if (Lifecycle.START_EVENT.equals(event.getType())) {
             System.out.println("context开始");
         } else if (Lifecycle.STOP_EVENT.equals(event.getType())) {
