@@ -6,6 +6,7 @@ import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
 import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 import com.bapocalypse.Jerrymouse.util.Constants;
 
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -44,16 +45,69 @@ public class SimpleLoader implements Loader, Lifecycle {
         }
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
+    @Override
     public Container getContainer() {
         return container;
     }
 
+    @Override
     public void setContainer(Container container) {
         this.container = container;
+    }
+
+    @Override
+    public boolean getDelegate() {
+        return false;
+    }
+
+    @Override
+    public void setDelegate(boolean delegate) {
+
+    }
+
+    @Override
+    public String getInfo() {
+        return null;
+    }
+
+    @Override
+    public boolean getReloadable() {
+        return false;
+    }
+
+    @Override
+    public void setReloadable(boolean reloadable) {
+
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+
+    }
+
+    @Override
+    public void addRepository(String repository) {
+
+    }
+
+    @Override
+    public String[] findRepositories() {
+        return new String[0];
+    }
+
+    @Override
+    public boolean modified() {
+        return false;
     }
 
     @Override
