@@ -4,6 +4,8 @@ import com.bapocalypse.Jerrymouse.exception.LifecycleException;
 import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
 import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 import com.bapocalypse.Jerrymouse.loader.Loader;
+import com.bapocalypse.Jerrymouse.logger.FileLogger;
+import com.bapocalypse.Jerrymouse.logger.Logger;
 import com.bapocalypse.Jerrymouse.mapper.Mapper;
 import com.bapocalypse.Jerrymouse.pipeline.Pipeline;
 import com.bapocalypse.Jerrymouse.pipeline.SimplePipeline;
@@ -34,6 +36,7 @@ public class SimpleContext implements Context, Lifecycle {
     private final HashMap<String, Container> children = new HashMap<>(); //子容器列表
     private LifecycleSupport lifecycle = new LifecycleSupport(this); //生命周期工具类
     private boolean started = false;  //指明SimpleContext实例是否已经启动
+    private Logger logger = null;   //与当前context相关联的日志记录器
 
     public SimpleContext() {
         pipeline.setBasic(new SimpleContextValve(this));
@@ -91,8 +94,19 @@ public class SimpleContext implements Context, Lifecycle {
     }
 
     @Override
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    @Override
     public void invoke(HttpRequestBase request, HttpResponseBase response)
             throws IOException, ServletException {
+        logger.log("simpleContext.invoke: " + this.getName());
         pipeline.invoke(request, response);
     }
 
@@ -211,6 +225,9 @@ public class SimpleContext implements Context, Lifecycle {
         started = true;
         //启动它的组件和子容器
         try {
+            if (logger != null && logger instanceof FileLogger) {
+                ((FileLogger) logger).start();
+            }
             if (loader != null && loader instanceof Lifecycle) {
                 ((Lifecycle) loader).start();
             }
@@ -266,10 +283,14 @@ public class SimpleContext implements Context, Lifecycle {
             if (loader != null && loader instanceof Lifecycle) {
                 ((Lifecycle) loader).stop();
             }
+
+            if (logger != null && logger instanceof FileLogger) {
+                ((FileLogger) logger).stop();
+            }
         } catch (LifecycleException e) {
             e.printStackTrace();
         }
-        //AFTER_STOP_EVENT
+        //触发AFTER_STOP_EVENT事件
         lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
     }
 }

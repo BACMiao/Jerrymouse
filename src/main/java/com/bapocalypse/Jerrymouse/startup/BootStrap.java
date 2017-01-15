@@ -7,9 +7,11 @@ import com.bapocalypse.Jerrymouse.container.SimpleWrapper;
 import com.bapocalypse.Jerrymouse.container.Wrapper;
 import com.bapocalypse.Jerrymouse.exception.LifecycleException;
 import com.bapocalypse.Jerrymouse.lifecycle.Lifecycle;
+import com.bapocalypse.Jerrymouse.listener.LifecycleListener;
 import com.bapocalypse.Jerrymouse.listener.SimpleContextLifecycleListener;
 import com.bapocalypse.Jerrymouse.loader.Loader;
 import com.bapocalypse.Jerrymouse.loader.SimpleLoader;
+import com.bapocalypse.Jerrymouse.logger.FileLogger;
 import com.bapocalypse.Jerrymouse.mapper.Mapper;
 import com.bapocalypse.Jerrymouse.mapper.SimpleContextMapper;
 import com.bapocalypse.Jerrymouse.valve.ClientIPLoggerValve;
@@ -35,7 +37,6 @@ public class BootStrap {
         wrapper2.setName("Modern");
 
         Context context = new SimpleContext();
-        Lifecycle lifecycle = (Lifecycle) context;
         context.setName("context");
         context.addChild(wrapper1);
         context.addChild(wrapper2);
@@ -48,19 +49,26 @@ public class BootStrap {
 
         Mapper mapper = new SimpleContextMapper();
         mapper.setProtocol("http");
+        ((Lifecycle) context).addLifecycleListener(new SimpleContextLifecycleListener());
         context.addMapper(mapper);
         Loader loader = new SimpleLoader();
         context.setLoader(loader);
         context.addServletMapping("/Hello", "Hello");
         context.addServletMapping("/Modern", "Modern");
+        System.setProperty("Jerrymouse.base", System.getProperty("user.dir"));
+        FileLogger logger = new FileLogger();
+        logger.setPrefix("FileLog_");
+        logger.setSuffix(".txt");
+        logger.setTimestamp(true);
+        logger.setDirectory("webroot");
+        context.setLogger(logger);
         connector.setContainer(context);
         try {
-            lifecycle.addLifecycleListener(new SimpleContextLifecycleListener());
-            lifecycle.start();
+            ((Lifecycle) context).start();
             connector.initialize();
             connector.start();
             System.in.read();
-            lifecycle.stop();
+            ((Lifecycle) context).stop();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (LifecycleException e) {

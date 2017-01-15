@@ -1,5 +1,6 @@
 package com.bapocalypse.Jerrymouse.container;
 
+import com.bapocalypse.Jerrymouse.logger.Logger;
 import com.bapocalypse.Jerrymouse.mapper.Mapper;
 import com.bapocalypse.Jerrymouse.request.HttpRequestBase;
 
@@ -62,4 +63,18 @@ public interface Context extends Container {
      * @return 特定协议所对应的映射器
      */
     Mapper findMapper(String protocol);
+
+    /**
+     * 将context容器与指定的日志记录器相关联
+     *
+     * @param logger 指定的日志记录器
+     */
+    void setLogger(Logger logger);
+
+    /**
+     * 获得去当前context相关联的日志记录器
+     *
+     * @return 相关联的日志记录器
+     */
+    Logger getLogger();
 }
