@@ -77,4 +77,15 @@ public interface Context extends Container {
      * @return 相关联的日志记录器
      */
     Logger getLogger();
+
+    /**
+     * 重新载入相关的改变的类
+     */
+    void reload();
+
+    /**
+     * 是否正确设置“配置”
+     * @param configured 正确配置
+     */
+    void setConfigured(boolean configured);
 }

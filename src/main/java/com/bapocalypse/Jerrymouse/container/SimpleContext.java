@@ -104,6 +104,16 @@ public class SimpleContext implements Context, Lifecycle {
     }
 
     @Override
+    public void reload() {
+
+    }
+
+    @Override
+    public void setConfigured(boolean configured) {
+
+    }
+
+    @Override
     public void invoke(HttpRequestBase request, HttpResponseBase response)
             throws IOException, ServletException {
         logger.log("simpleContext.invoke: " + this.getName());
